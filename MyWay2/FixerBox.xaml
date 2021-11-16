@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="Paneless.FixerBox"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:local="clr-namespace:Paneless"
+			 mc:Ignorable="d" 
+			>
+
+	<UserControl.Resources>
+		<Style x:Key="LinkButton" TargetType="Button">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<TextBlock TextDecorations="None">
+                    <ContentPresenter />
+						</TextBlock>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="Margin" Value="3,1" />
+			<Setter Property="Padding" Value="0,0" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="true">
+					<Setter Property="Foreground" Value="#FF2768B6" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+	</UserControl.Resources>
+	<Border CornerRadius="12" Width="400" Margin="8,8,8,8">
+		<Border.Background>
+			<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+				<GradientStop Color="#FFC5C0C0" Offset="1"/>
+				<GradientStop Color="White" Offset="0"/>
+			</LinearGradientBrush>
+		</Border.Background>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="auto"/>
+				<RowDefinition Height="20"/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+
+			<Grid Grid.Row="0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="120"/>
+					<ColumnDefinition />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto" MinHeight="45"/>
+					<RowDefinition Height="auto" MinHeight="55"/>
+				</Grid.RowDefinitions>
+				<Border BorderThickness="1" BorderBrush="#FFB4B4B4" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" MaxWidth="90" MaxHeight="90" VerticalAlignment="bottom">
+					<Image Name="FixerImg" Source="/windows.jpg"/>
+				</Border>
+				<TextBlock Grid.Row="0" Grid.Column="1" 
+					Name="FixerTitle" FontSize="15" FontFamily="Arial Rounded MT Bold" FontWeight="Bold" TextWrapping="Wrap"
+					HorizontalAlignment="right" VerticalAlignment="Bottom" 
+					Margin="0,0,10,4">Title for some annoying Windows Thing</TextBlock>
+				<Border x:Name="FixBtnArea" CornerRadius="12,0,0,0" BorderThickness="0" Grid.Row="1" Grid.Column="1" Background="#FFC5C5C5" Cursor="Hand">
+					<Grid>
+						<Rectangle x:Name="FixBtnBk" Fill="#FFFFF2CC" Width="100" Height="40" RadiusX="20" RadiusY="20" VerticalAlignment="Center" Stroke="#FFCFB24C" StrokeThickness="1" MouseLeftButtonDown="FixBtnClick"/>
+						<Ellipse x:Name="FixBtnDot" Fill="#FFCFB24C" Height="30" Width="30" VerticalAlignment="Center" MouseLeftButtonDown="FixBtnClick"/>
+						<Label x:Name="FixBtnTxt" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="30,0,0,0" FontFamily="Arial Rounded MT Bold" FontSize="14" Visibility="Visible" MouseLeftButtonDown="FixBtnClick">FIXED!</Label>
+					</Grid>
+				</Border>
+			</Grid>
+			<WrapPanel Grid.Row="1" Height="auto" HorizontalAlignment="right" >
+				<WrapPanel x:Name="FixerTags">
+					<Button Style="{StaticResource LinkButton}" Foreground="#FF7A7A7A" Content="#Tags" MouseLeftButtonDown="TagClick"/>
+				</WrapPanel>
+				<Button Style="{StaticResource LinkButton}" x:Name="FixerDeltaTag" Foreground="#FFAE4F4F" Content="#PrefFileMismatch"/>
+			</WrapPanel>
+			<TextBlock x:Name="FixerDesc" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" Padding="10,6,10,6" FontSize="15"><Run Text="This is test text. It has to be a bit long to get a sense for how this would look in practice. Not sure how long, but at least as lengthy as my normal rants about these things. It's anyone's guess what that actually means though... I kind of make it up as I go. What happens if I make it even bigger though? Cool. It expands :)"/><LineBreak/><Run/></TextBlock>
+		</Grid>
+	</Border>
+</UserControl>

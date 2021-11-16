@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Graphics\CMD.png" />
+    <None Remove="Graphics\expand_files.png" />
+    <None Remove="Graphics\extensions.png" />
+    <None Remove="Graphics\F1key.png" />
+    <None Remove="Graphics\groupby.png" />
+    <None Remove="Graphics\hidden_files.png" />
+    <None Remove="Graphics\num_lock_off.png" />
+    <None Remove="Graphics\num_lock_on.png" />
+    <None Remove="Graphics\user_folder.png" />
+    <None Remove="Graphics\windows.jpg" />
+    <None Remove="windows.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Graphics\CMD.png" />
+    <Resource Include="Graphics\expand_files.png" />
+    <Resource Include="Graphics\extensions.png" />
+    <Resource Include="Graphics\F1key.png" />
+    <Resource Include="Graphics\groupby.png" />
+    <Resource Include="Graphics\hidden_files.png" />
+    <Resource Include="Graphics\num_lock_off.png" />
+    <Resource Include="Graphics\num_lock_on.png" />
+    <Resource Include="Graphics\user_folder.png" />
+    <Resource Include="Graphics\windows.jpg" />
+    <Resource Include="windows.jpg" />
+  </ItemGroup>
+
+</Project>
