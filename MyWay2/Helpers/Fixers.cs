@@ -121,6 +121,29 @@ namespace Paneless.Helpers
 					and hiding the rest! Sensible, right? SMH... This removes ""Group By"" default settings for search it doesn't override your preferred view.
 					",
 				["Tags"] = "#Windows Explorer,#Rage"
+			},			
+			["DownloadGroupBy"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "StopGroupingMyDamnDownloads",
+				["Img"] = @"/graphics/groupby.png",
+				["Title"] = @"Kill the ""Group By"" view for Downloads folders",
+				["Description"] = @"
+					No matter what you do, no matter what dark god you sacrifice to, Windows will NOT allow you to view Downloads in a sensible way.
+					You can change settings and try every hack you know and STILL Downloads will force you to hunt for files in the ridiculous ""Group By"" format. 
+					Is it here? Is it in another group? Who knows? Spend hours of frustrating time playing hide-and-seek with your files... or click on this fix to stop this nonsense for good!
+					",
+				["Tags"] = "#Windows Explorer,#Rage"
+			},
+			["ExplorerRibbon"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "RestoreWinExplorerRibbonDammit",
+				["Img"] = @"/graphics/explore_ribbon.png",
+				["Title"] = @"Restore the Win Explorer Ribbon (Win 11)",
+				["Description"] = @"
+					The Ribbon was a masterfull mix of function and design - so of course Microsoft removes it in Windows 11 without any clear/easy way to bring it back.
+					Well, some of us want to actually SEE more than 5 controls in our file explorer so this will bring back what they shouldn't have removed in the first place!
+					",
+				["Tags"] = "#Windows Explorer,#Hidden Controls"
 			},
 		};
 

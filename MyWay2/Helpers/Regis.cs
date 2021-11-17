@@ -59,6 +59,19 @@ namespace Paneless.Helpers
 			return Convert.ToInt32(key.GetValue(val));
 		}
 
+		// Helper because apparently it won't do this on its own
+		public RegistryKey openCreate(RegistryKey baseKey, string path)
+		{
+			RegistryKey test = baseKey.OpenSubKey(path);
+
+			var reg = baseKey.OpenSubKey(path, true);
+			if (reg == null)
+			{
+				reg = baseKey.CreateSubKey(path);
+			}
+			return reg;
+		}
+
 		// Since we run as an admin, have to write a function to get the users mydocs path
 		public string MyDocsPath()
 		{
@@ -80,6 +93,8 @@ namespace Paneless.Helpers
 			if (which == "ShowFiles") return HiddenFilesVisible();	
 			if (which == "UserNav") return UserNavHidden();	
 			if (which == "SearchGroupBy") return SearchGroupByOff();	
+			if (which == "DownloadGroupBy") return DownloadGroupByOff();	
+			if (which == "ExplorerRibbon") return ExplorerRibbonOff();	
 			// Just in case, return false
 			return false;
 		}
@@ -93,6 +108,8 @@ namespace Paneless.Helpers
 			if (which == "ShowFiles") ShowFilesEnable();
 			if (which == "UserNav") UserNavDisable();
 			if (which == "SearchGroupBy") SearchGroupByDisable();
+			if (which == "DownloadGroupBy") DownloadGroupByDisable();
+			if (which == "ExplorerRibbon") ExplorerRibbonEnable();
 		}
 
 		public void BreakIt(string which)
@@ -104,6 +121,8 @@ namespace Paneless.Helpers
 			if (which == "ShowFiles") ShowFilesDisable();
 			if (which == "UserNav") UserNavEnable();
 			if (which == "SearchGroupBy") SearchGroupByEnable();
+			if (which == "DownloadGroupBy") DownloadGroupByEnable();
+			if (which == "ExplorerRibbon") ExplorerRibbonDisable();
 		}
 
 		public bool F1HelpFixed()
@@ -268,7 +287,7 @@ namespace Paneless.Helpers
 			{
 				using (RegistryKey explore = hku.OpenSubKey(loggedInSIDStr + @"\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"))
 				{
-					return (GetValueInt(explore, "Hidden") == 1);
+					return GetValueInt(explore, "Hidden") == 1;
 				}
 			}
 		}
@@ -362,6 +381,94 @@ namespace Paneless.Helpers
 				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderTypes\{7fde1a1e-8b31-49a5-93b8-6be14cfa4943}\TopViews\{4804caf0-de08-42ec-b811-52350e94c01e}", true))
 				{
 					explore.SetValue("GroupBy", "System.DateModified");
+				}
+			}
+		}	
+		
+		internal bool DownloadGroupByOff()
+		{
+			// Using "using" to handle auto-close when it leaves this code block (so we don't have to manually close before returning)
+			using (RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = localMachine.OpenSubKey(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}")){
+					if (explore == null || GetValueInt(explore, "GroupView") != 0)
+						return false;
+				}				
+				using (RegistryKey explore = localMachine.OpenSubKey(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\ComDlg\{885A186E-A440-4ADA-812B-DB871B942259}")){
+					if (explore == null || GetValueInt(explore, "GroupView") != 0)
+						return false;
+				}				
+				using (RegistryKey explore = localMachine.OpenSubKey(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\ComDlgLegacy\{885A186E-A440-4ADA-812B-DB871B942259}")){
+					if (explore == null || GetValueInt(explore, "GroupView") != 0)
+						return false;
+				}
+				return true;
+			}
+		}
+
+		public void DownloadGroupByEnable()
+		{
+			RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+			// Adding false to this command says not to throw an exception if the key doesn't exist - just ignore
+			localMachine.DeleteSubKeyTree(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}", false);
+			localMachine.DeleteSubKeyTree(@"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\ComDlg\{885a186e-a440-4ada-812b-db871b942259}", false);
+			localMachine.DeleteSubKeyTree(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\ComDlgLegacy\{885A186E-A440-4ADA-812B-DB871B942259}", false);
+			localMachine.Close();
+		}
+
+		public void DownloadGroupByDisable()
+		{
+			RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+			
+			RegistryKey explore = openCreate(localMachine,@"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\ComDlg\{885a186e-a440-4ada-812b-db871b942259}");
+			explore.SetValue("", "Downloads");
+			explore.SetValue("GroupView", "0");
+			explore.SetValue("Mode", "4");
+			explore.Close();
+
+			explore = openCreate(localMachine, @"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\ComDlgLegacy\{885a186e-a440-4ada-812b-db871b942259}");
+			explore.SetValue("", "Downloads");
+			explore.SetValue("GroupView", "0");
+			explore.SetValue("Mode", "4");
+			explore.Close();
+
+			explore = openCreate(localMachine, @"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885a186e-a440-4ada-812b-db871b942259}");
+			explore.SetValue("", "Downloads");
+			explore.SetValue("GroupView", "0");
+			explore.SetValue("Mode", "4");
+			explore.Close();
+
+			localMachine.Close();
+		}
+
+		internal bool ExplorerRibbonOff()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\"))
+				{
+					if ((string) explore.GetValue("{e2bf9676-5f8f-435c-97eb-11607a5bedf7}") == "")	
+						return true;
+					return false;
+				}
+			}
+		}
+
+		public void ExplorerRibbonDisable()
+		{
+			RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+			// Adding false to this command says not to throw an exception if the key doesn't exist - just ignore
+			localMachine.DeleteSubKeyTree(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\{e2bf9676-5f8f-435c-97eb-11607a5bedf7}", false);
+			localMachine.Close();
+		}
+
+		public void ExplorerRibbonEnable()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\", true))
+				{
+					explore.SetValue("{e2bf9676-5f8f-435c-97eb-11607a5bedf7}", "");
 				}
 			}
 		}
