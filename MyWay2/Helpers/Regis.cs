@@ -94,7 +94,10 @@ namespace Paneless.Helpers
 			if (which == "UserNav") return UserNavHidden();	
 			if (which == "SearchGroupBy") return SearchGroupByOff();	
 			if (which == "DownloadGroupBy") return DownloadGroupByOff();	
-			if (which == "ExplorerRibbon") return ExplorerRibbonOff();	
+			if (which == "ExplorerRibbon") return ExplorerRibbonOff();
+			if (which == "Hibernate") return HibernateOptionOn();
+			if (which == "NumLBoot") return NumLockOnBootOn();
+			if (which == "MenuAll") return FullRightClickMenu();
 			// Just in case, return false
 			return false;
 		}
@@ -110,6 +113,9 @@ namespace Paneless.Helpers
 			if (which == "SearchGroupBy") SearchGroupByDisable();
 			if (which == "DownloadGroupBy") DownloadGroupByDisable();
 			if (which == "ExplorerRibbon") ExplorerRibbonEnable();
+			if (which == "Hibernate") HibernateOptionEnable();
+			if (which == "NumLBoot") NumLockOnBootEnable();
+			if (which == "MenuAll") EnableFullRightClickMenu();
 		}
 
 		public void BreakIt(string which)
@@ -123,6 +129,10 @@ namespace Paneless.Helpers
 			if (which == "SearchGroupBy") SearchGroupByEnable();
 			if (which == "DownloadGroupBy") DownloadGroupByEnable();
 			if (which == "ExplorerRibbon") ExplorerRibbonDisable();
+			if (which == "Hibernate") HibernateOptionDisable();
+			if (which == "NumLBoot") NumLockOnBootDisable();
+			if (which == "MenuAll") DisableFullRightClickMenu();
+
 		}
 
 		public bool F1HelpFixed()
@@ -447,7 +457,7 @@ namespace Paneless.Helpers
 			{
 				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\"))
 				{
-					if ((string) explore.GetValue("{e2bf9676-5f8f-435c-97eb-11607a5bedf7}") == "")	
+					if (explore == null || (string) explore.GetValue("{e2bf9676-5f8f-435c-97eb-11607a5bedf7}") == "")	
 						return true;
 					return false;
 				}
@@ -472,6 +482,129 @@ namespace Paneless.Helpers
 				}
 			}
 		}
+
+		internal bool HibernateOptionOn()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings"))
+				{
+					if (explore != null && GetValueInt(explore, "ShowHibernateOption") == 1)
+						return true;
+					return false;
+				}
+			}
+		}
+
+		public void HibernateOptionDisable()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings", true))
+				{
+					explore.SetValue("ShowHibernateOption", 0);
+				}
+			}
+		}
+
+		public void HibernateOptionEnable()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				// Make sure Hibernate is enabled or showing it on the shutdown menu won't matter much.
+				using (RegistryKey explore = hku.CreateSubKey(@"SYSTEM\CurrentControlSet\Control\Power", true))
+				{
+					explore.SetValue("HibernateEnabled", 1);
+				}
+				using (RegistryKey explore = hku.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings", true))
+				{
+					explore.SetValue("ShowHibernateOption", 1);
+				}
+			}
+		}
+
+		public bool NumLockOn()
+		{
+			return false;
+		}
+
+		internal bool NumLockOnBootOn()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.OpenSubKey(loggedInSIDStr + @"\Control Panel\Keyboard"))
+				{
+					if (explore != null && GetValueInt(explore, "InitialKeyboardIndicators") == 2)
+						return true;
+					return false;
+				}
+			}
+		}
+
+		public void NumLockOnBootDisable()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.CreateSubKey(loggedInSIDStr + @"\Control Panel\Keyboard"))
+				{
+					explore.SetValue("InitialKeyboardIndicators", "0");
+				}
+			}
+		}
+
+		public void NumLockOnBootEnable()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.CreateSubKey(loggedInSIDStr + @"\Control Panel\Keyboard"))
+				{
+					explore.SetValue("InitialKeyboardIndicators", "2");
+				}
+			}
+		}
+
+
+
+		internal bool FullRightClickMenu()
+		{
+			using (var hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (var newMenuBlocker = hku.OpenSubKey(loggedInSIDStr + @"\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"))
+				{
+					// If it exists, the right click menu is restored!
+					return newMenuBlocker != null;
+
+				}
+			}
+		}
+
+		public void EnableFullRightClickMenu()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey newMenuBlocker = openCreate(hku,loggedInSIDStr + @"\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32");
+				// It can't even be "(Default) "" " or "(Default) value not set". It has to be "(Default) with literally nothing in the Data area
+				newMenuBlocker.SetValue("", string.Empty, RegistryValueKind.String);
+			}
+		}
+
+		public void DisableFullRightClickMenu()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				hku.DeleteSubKeyTree(loggedInSIDStr + @"\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}");
+			}
+		}
+
+
+
+
+
+
+
+
+
+
 
 	}
 }

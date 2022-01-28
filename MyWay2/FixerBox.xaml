@@ -68,7 +68,7 @@
 			</Grid>
 			<WrapPanel Grid.Row="1" Height="auto" HorizontalAlignment="right" >
 				<WrapPanel x:Name="FixerTags">
-					<Button Style="{StaticResource LinkButton}" Foreground="#FF7A7A7A" Content="#Tags" MouseLeftButtonDown="TagClick"/>
+					<Button Style="{StaticResource LinkButton}" Foreground="#FF7A7A7A" Content="#Tags" />
 				</WrapPanel>
 				<Button Style="{StaticResource LinkButton}" x:Name="FixerDeltaTag" Foreground="#FFAE4F4F" Content="#PrefFileMismatch"/>
 			</WrapPanel>

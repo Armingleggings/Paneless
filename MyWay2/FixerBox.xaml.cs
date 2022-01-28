@@ -38,7 +38,19 @@ namespace Paneless
 			this.Name = deets["Name"];
 			this.FixerTitle.Text = deets["Title"];
 			this.FixerDesc.Text = deets["Description"];
-			//this.FixerTags.Text = deets["Tags"];
+			var temp = deets["Tags"].Split(',');
+			Button btn = null;
+			// remove placeholder
+			this.FixerTags.Children.Clear();
+			foreach (var tag in temp)
+			{
+				btn = new Button();
+				btn.Content = (tag).Trim();
+				btn.Style = FindResource("LinkButton") as Style;
+				btn.Foreground = new SolidColorBrush(Color.FromRgb(125,125,125));
+				btn.Click += this.TagClick;
+				this.FixerTags.Children.Add(btn);
+			}
 			this.FixerImg.Source = new BitmapImage(new Uri(deets["Img"], UriKind.Relative));
 			this.FixerDeltaTag.Visibility = Visibility.Collapsed;
 		}
@@ -78,14 +90,20 @@ namespace Paneless
 			}
 		}
 
-		private void FixBtnClick(object sender, MouseButtonEventArgs e)
+		private void FixBtnClick(object sender, RoutedEventArgs e)
 		{
-			toggleClick?.Invoke(this, new RoutedEventArgs());
+			// Don't send what htey clicked (sender), send the entire fixerbox (which is this)
+			toggleClick?.Invoke(this, e);
 		}
 
-		private void TagClick(object sender, MouseButtonEventArgs e)
+		private Type GetType(object sender)
 		{
-			tagClick?.Invoke(this, new RoutedEventArgs());
+			throw new NotImplementedException();
+		}
+
+		private void TagClick(object sender, RoutedEventArgs e)
+		{
+			tagClick?.Invoke(sender, e);
 		}
 	}
 }

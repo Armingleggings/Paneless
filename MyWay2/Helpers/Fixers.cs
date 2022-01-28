@@ -18,14 +18,24 @@ namespace Paneless.Helpers
 
 		// Loads registry functions
 		private Regis regStuff = new Regis();
-		// A timer to make sure the system behaves
-		private Timer watcher;
 		// Watcher action toggles
-		private bool watchNumL = false;
+		public bool watchNumL = false;
 
 		// Translation array from fix shortname to various data about them
 		private Dictionary<string, Dictionary<string, string>> fixers = new Dictionary<string, Dictionary<string, string>>
 		{
+			["MenuAll"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "ShowALLRightClickOptions",
+				["Img"] = @"/graphics/right_click_menu.png",
+				["Title"] = @"Show ALL OPTIONS on right-click",
+				["Description"] = @"
+					Windows 11 is trying to dumb down the controls which isn't actually that terrible of a thing. The issue is if you know what you're doing, what you're looking for, and the thing you're looking for
+					didn't make the cut meaning two clicks before become three now. This disables the easy mode feature and restores pre-windows 11 right-click
+					",
+				["Activation_message"] = @"Windows must be restarted OR restart Explorer from the Task Manager to see the changes.",
+				["Tags"] = "#Hidden Controls, #Windows Explorer, #Windows 11"
+			},
 			["F1"] = new Dictionary<string,string> {
 				["PrefName"] = "KillF1UnhelpfulHelp",
 				["Img"] = @"/graphics/F1key.png",
@@ -56,10 +66,19 @@ namespace Paneless.Helpers
 				["Title"] = @"Force Num-Lock ON",
 				["Description"] = @"
 					I don't know about you, but I don't even know why we CAN disable Num-Lock. If you have a number pad, it should be NUMBERS. 
-					Enabling this fix starts a watcher process that continually monitors Num-Lock and if it sees that it's off, it forces it back ON. 
-					LIKE IT SHOULD BE!
+					Enabling this fix starts a watcher process that continually monitors Num-Lock and if it sees that it's off, it forces it back ON. LIKE IT SHOULD BE!
 					",
 				["Tags"] = "#Keyboard,#Rage"
+			},			
+			["NumLBoot"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "NumLockOnBoot",
+				["Img"] = @"/graphics/num_lock_off.png",
+				["Title"] = @"Num Lock ON when Booting",
+				["Description"] = @"
+					Windows allows you to force numlock OFF during boot, but also has the (correct) option to force it ON. This forces it on for boot so numlock will be on during the boot proccess.
+					",
+				["Tags"] = "#Keyboard"
 			},
 			["Expand"] = new Dictionary<string, string>
 			{
@@ -143,8 +162,21 @@ namespace Paneless.Helpers
 					The Ribbon was a masterfull mix of function and design - so of course Microsoft removes it in Windows 11 without any clear/easy way to bring it back.
 					Well, some of us want to actually SEE more than 5 controls in our file explorer so this will bring back what they shouldn't have removed in the first place!
 					",
-				["Tags"] = "#Windows Explorer,#Hidden Controls"
+				["Tags"] = "#Windows Explorer,#Hidden Controls,#Downgrade,#Windows 11"
 			},
+			["Hibernate"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "ShowHibernateOptionAlways",
+				["Img"] = @"/graphics/hibernate.png",
+				["Title"] = @"Show Hibernate option on Shutdown",
+				["Description"] = @"
+					Hibernate is a key option for turning off your machine given that sleep is only low-power mode and will eventually drain your battery (or sometimes the computer gets smart and wakes itself up). 
+					Hibernate stores your computer state and shuts down completely - perfect for computers you don't use every day, or to save power, or when traveling, etc.... so why in the bacon-baked hell isn't it ALWAYS visible as an option!?
+					This control restore Hibernate to the list of shutdown options LIKE IT SHOULD BE.
+					",
+				["Tags"] = "#Hidden Controls, #Hibernate, #Power"
+			},
+
 		};
 
 		public Fixers()
@@ -163,9 +195,8 @@ namespace Paneless.Helpers
 
 		public bool IsFixed(string which)
 		{
-			// If we're watching, it's fixed
+			// For NumL, if it's watching, it's fixed.
 			if ("NumL" == which) return watchNumL;
-
 			// For anything registry related
 			return regStuff.IsFixed(which);
 		}
@@ -180,7 +211,6 @@ namespace Paneless.Helpers
 			if ("NumL" == which) watchNumL = false;
 			else regStuff.BreakIt(which);
 		}
-
 
 		public Dictionary<string,string> GetFix(string which)
 		{

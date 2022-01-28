@@ -6,14 +6,45 @@
         xmlns:local="clr-namespace:Paneless"
         mc:Ignorable="d"
         Title="MainWindow" Height="850" Width="1430" Background="#FF323030">
+	<Window.Resources>
+		<Style x:Key="LinkButton" TargetType="Button">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<TextBlock TextDecorations="None">
+                    <ContentPresenter />
+						</TextBlock>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="Margin" Value="3,1" />
+			<Setter Property="Padding" Value="0,0" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="true">
+					<Setter Property="Foreground" Value="#FF2768B6" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+	</Window.Resources>	
 	<Grid>
 		<Grid.RowDefinitions>
+			<RowDefinition Height="60"/>
 			<RowDefinition Height="60"/>
 			<RowDefinition />
 		</Grid.RowDefinitions>
 
 		<TextBlock Grid.Row="0" Name="StatusBox" Width="600" MinHeight="40" Background="Beige"/>
-		<ScrollViewer Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible">
+		<WrapPanel Name="Controls" Grid.Row="1" Background="Beige">
+			<Label FontSize="18">Filters</Label>
+			<TextBox Name="filter" TextWrapping="Wrap" Width="120" Text="Type here to fiter fixes"/>
+			<WrapPanel Name="ActiveTags">
+				<Label Name="TagGuideNone">Click tags on fixes (ex. #Windows Explorer) to see only fixes in that category (you can click multiple in succession to further refine the listing)</Label>
+				<Label Name="TagGuideSome" Visibility="Collapsed">Click any tag in this area to remove it from the filter.</Label>
+			</WrapPanel>
+		</WrapPanel>
+
+		<ScrollViewer Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Visible">
 			<WrapPanel Name="FixersArea" Orientation="Horizontal" Width="auto" ></WrapPanel>
 		</ScrollViewer>
 
