@@ -54,8 +54,11 @@ namespace Paneless
 				fixerBoxes[whichFix.Name].DeltaCheck(prefs.GetPref(theFix["PrefName"]), "yes");
 			}
 			// Cheap way of saying, it's not blank
-			if (fixers.GetFix(whichFix.Name)["Activation_message"].Length > 3)
-				StatusBox.Text = ClearWS(fixers.GetFix(whichFix.Name)["Activation_message"]);
+			string message;
+			if (fixers.GetFix(whichFix.Name).TryGetValue("Activation_message",out message) == true && (message.Length > 3))
+			{
+				StatusBox.Text = ClearWS(message);
+			}
 		}
 
 		private void tagFilter()

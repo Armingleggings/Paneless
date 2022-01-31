@@ -418,16 +418,31 @@ namespace Paneless.Helpers
 
 		public void DownloadGroupByEnable()
 		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				hku.DeleteSubKeyTree(loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}");
+			}
+			/*
 			RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
 			// Adding false to this command says not to throw an exception if the key doesn't exist - just ignore
 			localMachine.DeleteSubKeyTree(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}", false);
 			localMachine.DeleteSubKeyTree(@"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\ComDlg\{885a186e-a440-4ada-812b-db871b942259}", false);
 			localMachine.DeleteSubKeyTree(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\ComDlgLegacy\{885A186E-A440-4ADA-812B-DB871B942259}", false);
 			localMachine.Close();
+			*/
 		}
 
 		public void DownloadGroupByDisable()
 		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.OpenSubKey(loggedInSIDStr + @"\SOFTWARE\Classes\Local Settings\SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}", true))
+				{
+					explore.SetValue("GroupView", 0, RegistryValueKind.DWord);
+					explore.SetValue("Mode", 4, RegistryValueKind.DWord);
+				}
+			}
+			/*
 			RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
 			
 			RegistryKey explore = openCreate(localMachine,@"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\ComDlg\{885a186e-a440-4ada-812b-db871b942259}");
@@ -449,6 +464,7 @@ namespace Paneless.Helpers
 			explore.Close();
 
 			localMachine.Close();
+			*/
 		}
 
 		internal bool ExplorerRibbonOff()
@@ -476,7 +492,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\", true))
+				using (RegistryKey explore = openCreate(hku,@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\"))
 				{
 					explore.SetValue("{e2bf9676-5f8f-435c-97eb-11607a5bedf7}", "");
 				}
