@@ -19,6 +19,7 @@
     <None Remove="Graphics\num_lock_off.png" />
     <None Remove="Graphics\num_lock_on.png" />
     <None Remove="Graphics\right_click_menu.png" />
+    <None Remove="Graphics\start_web_search.png" />
     <None Remove="Graphics\user_folder.png" />
     <None Remove="Graphics\windows.jpg" />
     <None Remove="windows.jpg" />
@@ -56,6 +57,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Graphics\right_click_menu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\start_web_search.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Graphics\user_folder.png">

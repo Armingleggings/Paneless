@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Paneless"
         mc:Ignorable="d"
-        Title="MainWindow" Height="850" Width="1430" Background="#FF323030">
+        Title="MainWindow" Height="850" Width="1300" Background="#FF323030">
 	<Window.Resources>
 		<Style x:Key="LinkButton" TargetType="Button">
 			<Setter Property="Template">
@@ -26,28 +26,63 @@
 				</Trigger>
 			</Style.Triggers>
 		</Style>
-	</Window.Resources>	
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="60"/>
-			<RowDefinition Height="60"/>
-			<RowDefinition />
-		</Grid.RowDefinitions>
+	</Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0" Name="StatusBox" Width="600" MinHeight="40" Background="Beige"/>
-		<WrapPanel Name="Controls" Grid.Row="1" Background="Beige">
-			<Label FontSize="18">Filters</Label>
-			<TextBox Name="filter" TextWrapping="Wrap" Width="120" Text="Type here to fiter fixes"/>
-			<WrapPanel Name="ActiveTags">
-				<Label Name="TagGuideNone">Click tags on fixes (ex. #Windows Explorer) to see only fixes in that category (you can click multiple in succession to further refine the listing)</Label>
-				<Label Name="TagGuideSome" Visibility="Collapsed">Click any tag in this area to remove it from the filter.</Label>
-			</WrapPanel>
-		</WrapPanel>
+        <Label Grid.Row="0" Name="StatusBox" HorizontalAlignment="Stretch" Foreground="#FF0B5B47" Background="Gainsboro" HorizontalContentAlignment="Right">Click tags on fixes (ex. #Windows Explorer) to see only fixes in that category (you can click multiple in succession to further refine the listing)</Label>
+        <Grid Name="Controls" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="130"/>
+                <ColumnDefinition />
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
 
-		<ScrollViewer Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Visible">
-			<WrapPanel Name="FixersArea" Orientation="Horizontal" Width="auto" ></WrapPanel>
-		</ScrollViewer>
+            <Border Grid.Column="0" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="5,3,5,3">
+                <TextBox Grid.Column="0" Name="Filter" Width="120" Height="25" Foreground="#FF989898" LostFocus="SetPlaceholder" GotFocus="ClearPlaceholder" KeyUp="FilterFixes" Tag="placeholder">
+                    <TextBox.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius" Value="3"/>
+                        </Style>
+                    </TextBox.Resources>
+                </TextBox>
+            </Border>
+            <Border Grid.Column="1" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="5,3,5,3">
+                <Grid >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
 
-	</Grid>
+                    <Label Grid.Row="0" Name="TagGuideNone" HorizontalAlignment="Stretch" Foreground="Gainsboro" HorizontalContentAlignment="Center">Click tags on fixes (ex. #Windows Explorer) to see only fixes in that category (you can click multiple in succession to further refine the listing)</Label>
+                    <Label Grid.Row="0" Name="TagGuideSome" HorizontalAlignment="Stretch" Foreground="Gainsboro" HorizontalContentAlignment="Center" Visibility="Collapsed">Click any tag in this area to remove it from the filter.</Label>
+                    <WrapPanel Grid.Row="1" Name="ActiveTags" HorizontalAlignment="Center" Width="auto">
 
+                    </WrapPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="2" CornerRadius="5,5,5,5" BorderThickness="0" Background="#FFC5C5C5" Cursor="Hand">
+                <WrapPanel>
+                    <Grid Grid.Column="1" Margin="4,0,0,0">
+                        <Rectangle Fill="#FFF5EED9" Height="25" RadiusX="4" RadiusY="4" VerticalAlignment="Center" Stroke="#FFE0C567" StrokeThickness="1" MouseLeftButtonDown="ClearFilter"/>
+                        <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0" FontFamily="Arial Rounded MT Bold" FontSize="14" Visibility="Visible" MouseLeftButtonDown="ClearFilter">Clear</Label>
+                    </Grid>
+                    <Button Name="FixAllButton">Fix visible</Button>
+                    <Button Name="MatchAllButton">Match settings</Button>
+                    <Button Name="ClearTagsButton">Clear tags</Button>
+                    <Button Name="ClearFilterButton">Clear filter</Button>
+                    <Button Name="ClearAllButton">Clear All</Button>
+                </WrapPanel>
+            </Border>
+        </Grid>
+
+        <ScrollViewer Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <WrapPanel Name="FixersArea" Orientation="Horizontal" Width="auto" ></WrapPanel>
+        </ScrollViewer>
+
+    </Grid>
 </Window>

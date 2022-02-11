@@ -139,6 +139,7 @@ namespace Paneless.Helpers
 					but all it does it complicate the view and make it impossible to find things. Woo! Let's hide most of the results by showing the most recent 3 or 4
 					and hiding the rest! Sensible, right? SMH... This removes ""Group By"" default settings for search it doesn't override your preferred view.
 					",
+				["Activation_message"] = @"Windows must be restarted OR restart Explorer from the Task Manager to see the changes.",
 				["Tags"] = "#Windows Explorer,#Rage"
 			},			
 			["DownloadGroupBy"] = new Dictionary<string, string>
@@ -170,14 +171,26 @@ namespace Paneless.Helpers
 				["Img"] = @"/graphics/hibernate.png",
 				["Title"] = @"Show Hibernate option on Shutdown",
 				["Description"] = @"
-					Hibernate is a key option for turning off your machine given that sleep is only low-power mode and will eventually drain your battery (or sometimes the computer gets smart and wakes itself up). 
 					Hibernate stores your computer state and shuts down completely - perfect for computers you don't use every day, or to save power, or when traveling, etc.... so why in the bacon-baked hell isn't it ALWAYS visible as an option!?
 					This control restore Hibernate to the list of shutdown options LIKE IT SHOULD BE.
 					",
-				["Tags"] = "#Hidden Controls, #Hibernate, #Power"
+				["Tags"] = "#Hidden Controls, #Hibernate, #Power, #Start Menu"
 			},
-
+			["StartWebSearch"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "StartWebSearch",
+				["Img"] = @"/graphics/start_web_search.png",
+				["Title"] = @"Disable web results in Start Menu",
+				["Description"] = @"
+					It's curious isn't it? Who would have ever thought that while we're looking for commands, programs, files on our computer, we want to see result FROM THE WEB!?
+					Click to disable this asinine behavior and end the timewasting distraction of web results where they don't belong.
+					",
+				["Tags"] = "#Start Menu, #Internet, #Feature Bleed"
+			},
 		};
+
+		// remove start menu search online
+		// remove cortana
 
 		public Fixers()
 		{

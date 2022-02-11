@@ -35,7 +35,12 @@ namespace Paneless
 			return temp;
 		}
 
-		private void fixClick(object sender, RoutedEventArgs e)
+		private void ShowStatus(string status)
+        {
+			StatusBox.Content = status;
+        }
+
+		private void FixClick(object sender, RoutedEventArgs e)
 		{
 			FixerBox whichFix = (FixerBox)sender;
 			Dictionary<string, string> theFix = fixers.GetFix(whichFix.Name);
@@ -44,25 +49,39 @@ namespace Paneless
 				whichFix.btnOff();
 				prefs.SetPref(theFix["PrefName"],"no");
 				fixers.BreakIt(whichFix.Name);
-				fixerBoxes[whichFix.Name].DeltaCheck(prefs.GetPref(theFix["PrefName"]), "no");
+				fixerBoxes[whichFix.Name].ClearDelta();
 			}
 			else
 			{
 				whichFix.btnOn();
 				prefs.SetPref(theFix["PrefName"], "yes");
 				fixers.FixIt(whichFix.Name);
-				fixerBoxes[whichFix.Name].DeltaCheck(prefs.GetPref(theFix["PrefName"]), "yes");
+				fixerBoxes[whichFix.Name].ClearDelta();
 			}
+
 			// Cheap way of saying, it's not blank
 			string message;
 			if (fixers.GetFix(whichFix.Name).TryGetValue("Activation_message",out message) == true && (message.Length > 3))
 			{
-				StatusBox.Text = ClearWS(message);
+				ShowStatus(ClearWS(message));
 			}
 		}
 
-		private void tagFilter()
+		// Since tags and filter text work together, this function checks both
+		private void TagFilter()
 		{
+			// Everything that does tags ends up here so use this function to operate the tag messages
+			if (ActiveTags.Children.Count == 0)
+			{
+				TagGuideNone.Visibility = Visibility.Visible;
+				TagGuideSome.Visibility = Visibility.Collapsed;
+			}
+			else
+			{
+				TagGuideNone.Visibility = Visibility.Collapsed;
+				TagGuideSome.Visibility = Visibility.Visible;
+			}
+
 			HashSet<string> boxTags = new HashSet<string>();
 			bool found;
 			foreach (var aBox in fixerBoxes)
@@ -83,6 +102,13 @@ namespace Paneless
 						found = false;
 					}
 				}
+				// If the filter has legit text in it
+				if (Filter.Text.Length > 0 && (string)Filter.Tag != "placeholder")
+				{
+					bool inTitle = fixerBoxes[aBox.Key].FixerTitle.Text.Contains(Filter.Text);
+					bool inText = fixerBoxes[aBox.Key].FixerDesc.Text.Contains(Filter.Text);
+					if (!inTitle && !inText) found = false;
+				}
 
 				if (!found)
 				{
@@ -99,23 +125,12 @@ namespace Paneless
 		{
 			Button TagClicked = (Button)sender;
 			string ToRemove = TagClicked.Content.ToString();
-			StatusBox.Text = ToRemove;
 			if (tags.Contains(ToRemove))
 			{
 				tags.Remove(ToRemove);
 			}
 			ActiveTags.Children.Remove(sender as Button);
-			if (tags.Count == 0)
-			{
-				TagGuideNone.Visibility = Visibility.Visible;
-				TagGuideSome.Visibility = Visibility.Collapsed;
-			}
-			else
-			{
-				TagGuideNone.Visibility = Visibility.Collapsed;
-				TagGuideSome.Visibility = Visibility.Visible;
-			}
-			tagFilter();
+			TagFilter();
 		}
 
 		private void tagClick(object sender, RoutedEventArgs e)
@@ -130,14 +145,20 @@ namespace Paneless
 				btn = new Button();
 				btn.Content = lookingFor;
 				btn.Style = FindResource("LinkButton") as Style;
-				btn.Foreground = new SolidColorBrush(Color.FromRgb(125, 125, 125));
+				btn.Foreground = new SolidColorBrush(Color.FromRgb(80, 200, 255));
+				btn.HorizontalAlignment = HorizontalAlignment.Center;
 				btn.Click += RemoveTag;
 				ActiveTags.Children.Add(btn);
 			}
 
-			tagFilter();
+			TagFilter();
 		}
 	
+		private void ClearFilter(object sender, RoutedEventArgs e)
+        {
+			Filter.Clear();
+			TagFilter();
+        }
 
 		// Loads fixers into the window. Determines their status and whether they are matched to the prefs
 		public void addFixers()
@@ -162,9 +183,11 @@ namespace Paneless
 				// Makes it findable by name
 				FixersArea.Children.Add(fixerBoxes[key]);
 				// Direct click events to our mainfile function
-				fixerBoxes[key].toggleClick += fixClick;
+				fixerBoxes[key].toggleClick += FixClick;
 				// Directs tag clicks
 				fixerBoxes[key].tagClick += tagClick;
+				// Image update
+				fixerBoxes[key].FixerImg.Source = new BitmapImage(new Uri(temp["Img"], UriKind.Relative));
 				// Check to see if it's already active or not
 				if (fixers.IsFixed(key))
 				{
@@ -233,6 +256,32 @@ namespace Paneless
 
 		}
 
+		private void SetPlaceholder(object sender, RoutedEventArgs e)
+		{
+			if (Filter.Text.Length == 0)
+            {
+				Filter.Tag = "placeholder";
+				Filter.Text = "Filter fixes";
+				Filter.Foreground = new SolidColorBrush(Color.FromRgb(155, 155, 155));
+			}
+		}
+
+		// If filter gains focus and doesn't have custom data in it, clear the placeholder
+		private void ClearPlaceholder(object sender, RoutedEventArgs e)
+		{
+			// We have it flagged as a placeholder, so clear that and set the color to normal
+			if ((string) Filter.Tag == "placeholder")
+            {
+				Filter.Foreground = new SolidColorBrush(Color.FromRgb(44, 44, 44));
+				Filter.Text = "";
+				Filter.Tag = "";
+			}
+		}
+
+		private void FilterFixes(object sender, RoutedEventArgs e)
+		{
+			TagFilter();
+		}
 
 		public MainWindow()
 		{
@@ -251,6 +300,13 @@ namespace Paneless
 			// And start it        
 			myTimer.Enabled = true;
 
+			// Force the filter box placeholder info (since WPF doesn't think placeholders are necessary or useful... apparently)
+			SetPlaceholder(null, null);
 		}
-	}
+
+        private void Rectangle_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+
+        }
+    }
 }

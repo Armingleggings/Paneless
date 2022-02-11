@@ -98,6 +98,7 @@ namespace Paneless.Helpers
 			if (which == "Hibernate") return HibernateOptionOn();
 			if (which == "NumLBoot") return NumLockOnBootOn();
 			if (which == "MenuAll") return FullRightClickMenu();
+			if (which == "StartWebSearch") return StartWebSearchOff();
 			// Just in case, return false
 			return false;
 		}
@@ -116,6 +117,7 @@ namespace Paneless.Helpers
 			if (which == "Hibernate") HibernateOptionEnable();
 			if (which == "NumLBoot") NumLockOnBootEnable();
 			if (which == "MenuAll") EnableFullRightClickMenu();
+			if (which == "StartWebSearch") StartWebSearchDisable();
 		}
 
 		public void BreakIt(string which)
@@ -132,7 +134,19 @@ namespace Paneless.Helpers
 			if (which == "Hibernate") HibernateOptionDisable();
 			if (which == "NumLBoot") NumLockOnBootDisable();
 			if (which == "MenuAll") DisableFullRightClickMenu();
+			if (which == "StartWebSearch") StartWebSearchEnable();
 
+		}
+
+		// Safe delete of trees to prevent annoying and unnecessary error messages
+		public static void DelTree(RegistryHive registryHive, string fullPathKeyToDelete)
+		{
+
+			using (var baseKey = RegistryKey.OpenBaseKey(registryHive, RegistryView.Registry64))
+			{
+				// Adding false to this command says not to throw an exception if the key doesn't exist - just ignore
+				baseKey.DeleteSubKeyTree(fullPathKeyToDelete, false);
+			}
 		}
 
 		public bool F1HelpFixed()
@@ -161,7 +175,7 @@ namespace Paneless.Helpers
 
 		public void RestoreF1()
 		{
-			Registry.Users.DeleteSubKeyTree(loggedInSIDStr + @"\SOFTWARE\Classes\Typelib\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}\1.0\0");
+			DelTree(RegistryHive.Users,loggedInSIDStr + @"\SOFTWARE\Classes\Typelib\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}\1.0\0");
 		}
 
 		public bool CMDContextOn()
@@ -217,9 +231,9 @@ namespace Paneless.Helpers
 
 		public void CMDdisable()
 		{
-			Registry.ClassesRoot.DeleteSubKeyTree(@"Directory\shell\OpenCmdHereAsAdmin");
-			Registry.ClassesRoot.DeleteSubKeyTree(@"Directory\Background\shell\OpenCmdHereAsAdmin");
-			Registry.ClassesRoot.DeleteSubKeyTree(@"Drive\shell\OpenCmdHereAsAdmin");
+			DelTree(RegistryHive.ClassesRoot,@"Directory\shell\OpenCmdHereAsAdmin");
+			DelTree(RegistryHive.ClassesRoot,@"Directory\Background\shell\OpenCmdHereAsAdmin");
+			DelTree(RegistryHive.ClassesRoot,@"Drive\shell\OpenCmdHereAsAdmin");
 		}
 
 		internal bool ExpandOn()
@@ -360,111 +374,129 @@ namespace Paneless.Helpers
 			}
 		}
 		
-		internal bool SearchGroupByOff()
-		{
-			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+		// When changing the default view, make sure to delete any saved "bags" which override the defaults
+		public void killBags(string bagKey)
+        {
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderTypes\{7fde1a1e-8b31-49a5-93b8-6be14cfa4943}\TopViews\{4804caf0-de08-42ec-b811-52350e94c01e}"))
+				string bagsFolder = loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\";
+				using (RegistryKey explore = openCreate(hku, bagsFolder))
 				{
-					if ((string)explore.GetValue("GroupBy") == "System.DateModified")
+					foreach (string key in explore.GetSubKeyNames())
+					{
+						var comTest = hku.OpenSubKey(bagsFolder + "\\" + key + "\\ComDlg\\" + bagKey);
+						var shellTest = hku.OpenSubKey(bagsFolder + "\\" + key + "\\Shell\\" + bagKey);
+						if ((comTest != null || shellTest != null) && key != "AllFolders")
+                        {
+							if (comTest != null) comTest.Close();
+							if (shellTest != null) shellTest.Close();
+							DelTree(RegistryHive.Users,bagsFolder+"\\"+key);
+						}
+					}
+				}
+			}
+		}
+
+		// Group bags. Are there some?
+		public bool GroupBags(string bagKey)
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				string bagsFolder = loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\";
+				using (RegistryKey explore = openCreate(hku, bagsFolder))
+				{
+					foreach (string key in explore.GetSubKeyNames())
+					{
+						RegistryKey comTest = hku.OpenSubKey(bagsFolder + "\\" + key + "\\ComDlg\\" + bagKey);
+						RegistryKey shellTest = hku.OpenSubKey(bagsFolder + "\\" + key + "\\Shell\\" + bagKey);
+						if ((comTest != null || shellTest != null) && key != "AllFolders")
+						{
+							RegistryKey toCheck = comTest != null ? comTest :shellTest;
+							if ((int)toCheck.GetValue("GroupView") != 0) return true;
+						}
+					}
+				}
+			}
+			return false;
+		}
+
+
+		//"{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}"
+		internal bool DownloadGroupByOff()
+		{
+			// Using "using" to handle auto-close when it leaves this code block (so we don't have to manually close before returning)
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				// Found a local setting with groupby on for this key
+				if (GroupBags("{885A186E-A440-4ADA-812B-DB871B942259}")) return false;
+				using (RegistryKey explore = hku.OpenSubKey(loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}", true))
+				{
+					// Mode one for thumbnail view!
+					if (explore == null || (int)explore.GetValue("Mode") != 1)
 						return false;
 					return true;
 				}
 			}
-		}
 
-		public void SearchGroupByDisable()
-		{
-			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
-			{
-				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderTypes\{7fde1a1e-8b31-49a5-93b8-6be14cfa4943}\TopViews\{4804caf0-de08-42ec-b811-52350e94c01e}", true))
-				{
-					explore.DeleteValue("GroupBy");
-				}
-			}
 		}
-
-		public void SearchGroupByEnable()
-		{
-			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
-			{
-				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderTypes\{7fde1a1e-8b31-49a5-93b8-6be14cfa4943}\TopViews\{4804caf0-de08-42ec-b811-52350e94c01e}", true))
-				{
-					explore.SetValue("GroupBy", "System.DateModified");
-				}
-			}
-		}	
-		
-		internal bool DownloadGroupByOff()
-		{
-			// Using "using" to handle auto-close when it leaves this code block (so we don't have to manually close before returning)
-			using (RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
-			{
-				using (RegistryKey explore = localMachine.OpenSubKey(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}")){
-					if (explore == null || GetValueInt(explore, "GroupView") != 0)
-						return false;
-				}				
-				using (RegistryKey explore = localMachine.OpenSubKey(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\ComDlg\{885A186E-A440-4ADA-812B-DB871B942259}")){
-					if (explore == null || GetValueInt(explore, "GroupView") != 0)
-						return false;
-				}				
-				using (RegistryKey explore = localMachine.OpenSubKey(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\ComDlgLegacy\{885A186E-A440-4ADA-812B-DB871B942259}")){
-					if (explore == null || GetValueInt(explore, "GroupView") != 0)
-						return false;
-				}
-				return true;
-			}
-		}
-
 		public void DownloadGroupByEnable()
 		{
-			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
-			{
-				hku.DeleteSubKeyTree(loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}");
-			}
-			/*
-			RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-			// Adding false to this command says not to throw an exception if the key doesn't exist - just ignore
-			localMachine.DeleteSubKeyTree(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}", false);
-			localMachine.DeleteSubKeyTree(@"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\ComDlg\{885a186e-a440-4ada-812b-db871b942259}", false);
-			localMachine.DeleteSubKeyTree(@"Software\Microsoft\Windows\Shell\Bags\AllFolders\ComDlgLegacy\{885A186E-A440-4ADA-812B-DB871B942259}", false);
-			localMachine.Close();
-			*/
+			killBags("{885A186E-A440-4ADA-812B-DB871B942259}");
+			DelTree(RegistryHive.Users,loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}");
 		}
 
 		public void DownloadGroupByDisable()
 		{
+			killBags("{885A186E-A440-4ADA-812B-DB871B942259}");
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = hku.OpenSubKey(loggedInSIDStr + @"\SOFTWARE\Classes\Local Settings\SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}", true))
+				// This sets the default option so that any time explorer tries to guess at the view for downloads, it uses ours (NO group by, thumbnail mode)
+				using (RegistryKey explore = openCreate(hku, loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}"))
 				{
 					explore.SetValue("GroupView", 0, RegistryValueKind.DWord);
-					explore.SetValue("Mode", 4, RegistryValueKind.DWord);
+					explore.SetValue("Mode", 1, RegistryValueKind.DWord);
 				}
 			}
-			/*
-			RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-			
-			RegistryKey explore = openCreate(localMachine,@"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\ComDlg\{885a186e-a440-4ada-812b-db871b942259}");
-			explore.SetValue("", "Downloads");
-			explore.SetValue("GroupView", "0");
-			explore.SetValue("Mode", "4");
-			explore.Close();
 
-			explore = openCreate(localMachine, @"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\ComDlgLegacy\{885a186e-a440-4ada-812b-db871b942259}");
-			explore.SetValue("", "Downloads");
-			explore.SetValue("GroupView", "0");
-			explore.SetValue("Mode", "4");
-			explore.Close();
+		}
 
-			explore = openCreate(localMachine, @"SOFTWARE\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885a186e-a440-4ada-812b-db871b942259}");
-			explore.SetValue("", "Downloads");
-			explore.SetValue("GroupView", "0");
-			explore.SetValue("Mode", "4");
-			explore.Close();
 
-			localMachine.Close();
-			*/
+		internal bool SearchGroupByOff()
+		{
+			// Using "using" to handle auto-close when it leaves this code block (so we don't have to manually close before returning)
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				// Found a local setting with groupby on for this key
+				if (GroupBags("{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}")) return false;
+				using (RegistryKey explore = hku.OpenSubKey(loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}", true))
+				{
+					// Mode one for thumbnail view!
+					if (explore == null || (int)explore.GetValue("Mode") != 1)
+						return false;
+					return true;
+				}
+			}
+
+		}
+		public void SearchGroupByEnable()
+		{
+			killBags("{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}");
+			DelTree(RegistryHive.Users, loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}");
+		}
+
+		public void SearchGroupByDisable()
+		{
+			killBags("{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}");
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				// This sets the default option so that any time explorer tries to guess at the view for downloads, it uses ours (NO group by, thumbnail mode)
+				using (RegistryKey explore = openCreate(hku, loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}"))
+				{
+					explore.SetValue("GroupView", 0, RegistryValueKind.DWord);
+					explore.SetValue("Mode", 1, RegistryValueKind.DWord);
+				}
+			}
+
 		}
 
 		internal bool ExplorerRibbonOff()
@@ -482,10 +514,7 @@ namespace Paneless.Helpers
 
 		public void ExplorerRibbonDisable()
 		{
-			RegistryKey localMachine = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-			// Adding false to this command says not to throw an exception if the key doesn't exist - just ignore
-			localMachine.DeleteSubKeyTree(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\{e2bf9676-5f8f-435c-97eb-11607a5bedf7}", false);
-			localMachine.Close();
+			DelTree(RegistryHive.LocalMachine,@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\{e2bf9676-5f8f-435c-97eb-11607a5bedf7}");
 		}
 
 		public void ExplorerRibbonEnable()
@@ -606,15 +635,41 @@ namespace Paneless.Helpers
 
 		public void DisableFullRightClickMenu()
 		{
-			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
-			{
-				hku.DeleteSubKeyTree(loggedInSIDStr + @"\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}");
-			}
+			DelTree(RegistryHive.Users,loggedInSIDStr + @"\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}");
 		}
 
 
 
+		internal bool StartWebSearchOff()
+		{
+			using (var hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (var subKey = hku.OpenSubKey(loggedInSIDStr + @"\SOFTWARE\Policies\Microsoft\Windows\Explorer"))
+				{
+					// If an Eplorer policy doesn't exist, that means it's not set
+					if (subKey == null) return false;
+					return (GetValueInt(subKey,"DisableSearchBoxSuggestions") == 1);
+				}
+			}
+		}
 
+		public void StartWebSearchDisable()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = openCreate(hku, loggedInSIDStr + @"\SOFTWARE\Policies\Microsoft\Windows\Explorer");
+				subKey.SetValue("DisableSearchBoxSuggestions", 1, RegistryValueKind.DWord);
+			}
+		}
+
+		public void StartWebSearchEnable()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = openCreate(hku, loggedInSIDStr + @"\SOFTWARE\Policies\Microsoft\Windows\Explorer");
+				subKey.DeleteValue("DisableSearchBoxSuggestions");
+			}
+		}
 
 
 

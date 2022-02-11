@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -28,6 +29,8 @@ namespace Paneless
 
 		public event RoutedEventHandler toggleClick;
 		public event RoutedEventHandler tagClick;
+		// Cheating probably... define a class-wide var for the "pref file is mismatched" tag that comes and goes. Holds an instance of a button so we can remove it later.
+		private Button PrefAlertBtn;
 
 		public bool IsFixed { get; set; } = false;
 		
@@ -51,8 +54,6 @@ namespace Paneless
 				btn.Click += this.TagClick;
 				this.FixerTags.Children.Add(btn);
 			}
-			this.FixerImg.Source = new BitmapImage(new Uri(deets["Img"], UriKind.Relative));
-			this.FixerDeltaTag.Visibility = Visibility.Collapsed;
 		}
 
 		public void btnOn() 
@@ -74,20 +75,26 @@ namespace Paneless
 			FixBtnTxt.Visibility = Visibility.Hidden;
 		}
 
+		// Given a saved pref and a current test state, does the test state match that saved value
+		// If delta, adds a tag otherwise removes
 		public void DeltaCheck(string savedPref, string testState)
 		{
-			// IF a preference exists and matches the current system state...
-			if (savedPref == testState)
+			// If our current state doesn't match the pref file (also if the preference isn't saved I guess... havne't figured out what to do in a null case yet)
+			if (savedPref != testState)
 			{
-				FixBtnArea.Background = new SolidColorBrush(Color.FromRgb(195, 195, 195));
-				this.FixerDeltaTag.Visibility = Visibility.Collapsed;
+				PrefAlertBtn = new Button();
+				PrefAlertBtn.Content = "#PrefFileMismatch";
+				PrefAlertBtn.Style = FindResource("LinkButton") as Style;
+				PrefAlertBtn.Foreground = new SolidColorBrush(Color.FromRgb(153, 0, 0));
+				PrefAlertBtn.Click += this.TagClick;
+				FixerTags.Children.Add(PrefAlertBtn);
 			}
-			// ... but if the pref is mismatched or missing...
-			else
-			{
-				FixBtnArea.Background = new SolidColorBrush(Color.FromRgb(158, 147, 128));
-				this.FixerDeltaTag.Visibility = Visibility.Visible;
-			}
+		}
+
+		// When updating preferences, clear deltas.
+		public void ClearDelta()
+        {
+			FixerTags.Children.Remove(PrefAlertBtn);
 		}
 
 		private void FixBtnClick(object sender, RoutedEventArgs e)
