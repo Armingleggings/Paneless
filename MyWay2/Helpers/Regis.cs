@@ -412,7 +412,11 @@ namespace Paneless.Helpers
 						if ((comTest != null || shellTest != null) && key != "AllFolders")
 						{
 							RegistryKey toCheck = comTest != null ? comTest :shellTest;
-							if ((int)toCheck.GetValue("GroupView") != 0) return true;
+							if (toCheck != null)
+                            {
+								var temp = toCheck.GetValue("GroupView");
+								if (temp != null && (int)temp != 0) return true;
+                            }
 						}
 					}
 				}
@@ -514,7 +518,13 @@ namespace Paneless.Helpers
 
 		public void ExplorerRibbonDisable()
 		{
-			DelTree(RegistryHive.LocalMachine,@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\{e2bf9676-5f8f-435c-97eb-11607a5bedf7}");
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = openCreate(hku,@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\"))
+				{
+					explore.DeleteValue("{e2bf9676-5f8f-435c-97eb-11607a5bedf7}");
+				}
+			}
 		}
 
 		public void ExplorerRibbonEnable()

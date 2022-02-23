@@ -34,7 +34,9 @@
 			<RowDefinition />
 		</Grid.RowDefinitions>
 
-		<Label Grid.Row="0" Name="StatusBox" HorizontalAlignment="Stretch" Foreground="#FF0B5B47" Background="Gainsboro" HorizontalContentAlignment="Right"></Label>
+        <WrapPanel Grid.Row="0" Name="StatusArea" Background="Gainsboro" VerticalAlignment="Stretch">
+            <Label Name="StatusBox" Foreground="#FF0B5B47" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"></Label>
+        </WrapPanel>
 		<Grid Name="Controls" Grid.Row="1">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="130"/>

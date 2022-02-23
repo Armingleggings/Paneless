@@ -7,6 +7,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Linq;
+using System.Diagnostics;
 
 namespace Paneless
 {
@@ -37,11 +39,51 @@ namespace Paneless
 
 		private void ShowStatus(string status)
 		{
+			ClearStatus();
+			Button btn = null;
+
+			// There's probably a much cleaner way of doing this. Oh well...
+			if (status.Contains("#RestartWinExplorer"))
+            {
+				status.Replace("#RestartWinExplorer", "");
+				btn = new Button();
+				btn.Content = "(Click here to retstart Windows Explorer Now)";
+				btn.Style = FindResource("LinkButton") as Style;
+				btn.Foreground = new SolidColorBrush(Color.FromRgb(222, 00, 40));
+				btn.Margin = new Thickness(4,4,4,4);
+				btn.Click += RestartWinExplorer;
+            }
+
 			StatusBox.Content = status;
+			if (btn != null)
+            {
+				StatusArea.Children.Add(btn);
+            }
 		}
+
+		private void ClearStatus()
+		{
+			StatusBox.Content = "";
+			// clear any prior button controls
+			StatusArea.Children.OfType<Button>().ToList().ForEach(b => StatusArea.Children.Remove(b));
+		}
+
+		private void RestartWinExplorer(object sender, RoutedEventArgs e)
+        {
+			ShowStatus("Restarting");
+
+			Process p = new Process();
+            foreach (Process exe in Process.GetProcesses())
+            {
+                if (exe.ProcessName == "explorer")
+                    exe.Kill();
+            }
+            Process.Start("explorer.exe");
+        }
 
 		private void FixClick(object sender, RoutedEventArgs e)
 		{
+			ClearStatus();
 			FixerBox whichFix = (FixerBox)sender;
 			Dictionary<string, string> theFix = fixers.GetFix(whichFix.Name);
 			if (whichFix.IsFixed)
@@ -171,7 +213,8 @@ namespace Paneless
 
 		// Takes all current fixes and makes a new prefs file from it
 		private void MatchPrefs(object sender, RoutedEventArgs e)
-		{	
+		{
+			ClearStatus();
 			foreach (var aBox in fixerBoxes)
 			{
 				FixerBox aFix = aBox.Value;
@@ -185,21 +228,30 @@ namespace Paneless
 			}
 			// Tags just changed so update the view
 			TagFilter();
+			ShowStatus("Done!");
 		}
 
 
 
 		private void ClearFilter(object sender, RoutedEventArgs e)
 		{
+			ClearStatus();
 		
+			// Clear the text filter
 			Filter.Clear();
+			// Clear the list of tags visible in the UI
 			ActiveTags.Children.Clear();
+			// Clear the tags hashset we use to track active tags
+			tags.Clear();
 
 			TagFilter();
 		}
 		
 		private void FixVisible(object sender, RoutedEventArgs e)
 		{
+			ClearStatus();
+
+			//<Button>
 			foreach (var aBox in fixerBoxes)
 			{
 				// It's visible...
@@ -213,6 +265,7 @@ namespace Paneless
                     }
 				}
 			}
+			ShowStatus("Done!");
 		}
 
 		// Used to check all our fixes on a pulse. If something changes in either the prefs file or the registry, this will light it up
@@ -379,9 +432,5 @@ namespace Paneless
 			SetPlaceholder(null, null);
 		}
 
-		private void Rectangle_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-		{
-
-		}
 	}
 }
