@@ -1,6 +1,7 @@
 ﻿using Paneless.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Security.Permissions;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,6 +32,7 @@ namespace Paneless
 		public event RoutedEventHandler tagClick;
 		// Cheating probably... define a class-wide var for the "pref file is mismatched" tag that comes and goes. Holds an instance of a button so we can remove it later.
 		private Button PrefAlertBtn;
+		public bool DeltaFlag { get; set; } = false;
 
 		public bool IsFixed { get; set; } = false;
 		
@@ -80,27 +82,36 @@ namespace Paneless
 		public void DeltaCheck(string savedPref, string testState)
 		{
 			// If our current state doesn't match the pref file (also if the preference isn't saved I guess... havne't figured out what to do in a null case yet)
-			if (savedPref != testState)
+			if (savedPref != testState && !DeltaFlag)
 			{
 				PrefAlertBtn = new Button();
 				PrefAlertBtn.Content = "#PrefFileMismatch";
+				PrefAlertBtn.Name = "mismatchTag";
 				PrefAlertBtn.Style = FindResource("LinkButton") as Style;
 				PrefAlertBtn.Foreground = new SolidColorBrush(Color.FromRgb(153, 0, 0));
 				PrefAlertBtn.Click += this.TagClick;
 				FixerTags.Children.Add(PrefAlertBtn);
+				DeltaFlag = true;
 			}
 		}
 
 		// When updating preferences, clear deltas.
 		public void ClearDelta()
-        {
+		{
+			DeltaFlag = false;
 			FixerTags.Children.Remove(PrefAlertBtn);
 		}
 
-		private void FixBtnClick(object sender, RoutedEventArgs e)
+		private async void FixBtnClick(object sender, RoutedEventArgs e)
 		{
+			try
+			{
 			// Don't send what htey clicked (sender), send the entire fixerbox (which is this)
-			toggleClick?.Invoke(this, e);
+				toggleClick?.Invoke(this, e);
+			}
+			catch(Exception ex)
+			{
+			}
 		}
 
 		private Type GetType(object sender)

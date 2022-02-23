@@ -18,12 +18,12 @@ namespace Paneless.Helpers
 		{
 			settingsPath = Path.Combine(MyDocsPath, "Paneless").ToString();
 			settingsFile = "prefs.txt";
-			LoadPrefs(settingsFile);
+			LoadPrefs();
 		}
 
-		public void LoadPrefs(string prefFile)
+		public void LoadPrefs()
 		{
-			string fullPath = settingsPath + "\\" + prefFile;
+			string fullPath = settingsPath + "\\" + settingsFile;
 			if (File.Exists(fullPath))
 			{
 				string[] temp;

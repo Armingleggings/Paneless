@@ -36,9 +36,9 @@ namespace Paneless
 		}
 
 		private void ShowStatus(string status)
-        {
+		{
 			StatusBox.Content = status;
-        }
+		}
 
 		private void FixClick(object sender, RoutedEventArgs e)
 		{
@@ -70,6 +70,9 @@ namespace Paneless
 		// Since tags and filter text work together, this function checks both
 		private void TagFilter()
 		{
+			bool isFilter = false;
+			bool isTags = false;
+
 			// Everything that does tags ends up here so use this function to operate the tag messages
 			if (ActiveTags.Children.Count == 0)
 			{
@@ -78,9 +81,13 @@ namespace Paneless
 			}
 			else
 			{
+				isTags = true;
 				TagGuideNone.Visibility = Visibility.Collapsed;
 				TagGuideSome.Visibility = Visibility.Visible;
 			}
+
+			if (Filter.Text.Length > 0 && (string)Filter.Tag != "placeholder")
+				isFilter = true;
 
 			HashSet<string> boxTags = new HashSet<string>();
 			bool found;
@@ -103,7 +110,7 @@ namespace Paneless
 					}
 				}
 				// If the filter has legit text in it
-				if (Filter.Text.Length > 0 && (string)Filter.Tag != "placeholder")
+				if (isFilter)
 				{
 					bool inTitle = fixerBoxes[aBox.Key].FixerTitle.Text.Contains(Filter.Text);
 					bool inText = fixerBoxes[aBox.Key].FixerDesc.Text.Contains(Filter.Text);
@@ -119,6 +126,14 @@ namespace Paneless
 					fixerBoxes[aBox.Key].Visibility = Visibility.Visible;
 				}
 			}
+
+			// Handle the "clear" button
+			if (isFilter || isTags)
+				ClearButton.Content = "Clear Filter & Tags";
+			if (isTags && !isFilter)
+				ClearButton.Content = "Clear Tags";
+			if (!isTags && isFilter)
+				ClearButton.Content = "Clear Filter";
 		}
 
 		private void RemoveTag(object sender, RoutedEventArgs e)
@@ -153,11 +168,112 @@ namespace Paneless
 
 			TagFilter();
 		}
-	
-		private void ClearFilter(object sender, RoutedEventArgs e)
-        {
-			Filter.Clear();
+
+		// Takes all current fixes and makes a new prefs file from it
+		private void MatchPrefs(object sender, RoutedEventArgs e)
+		{	
+			foreach (var aBox in fixerBoxes)
+			{
+				FixerBox aFix = aBox.Value;
+
+				if (aFix.DeltaFlag)
+				{
+					// trigger a click;
+					FixClick(aFix, null);
+					aFix.ClearDelta();
+                }
+			}
+			// Tags just changed so update the view
 			TagFilter();
+		}
+
+
+
+		private void ClearFilter(object sender, RoutedEventArgs e)
+		{
+		
+			Filter.Clear();
+			ActiveTags.Children.Clear();
+
+			TagFilter();
+		}
+		
+		private void FixVisible(object sender, RoutedEventArgs e)
+		{
+			foreach (var aBox in fixerBoxes)
+			{
+				// It's visible...
+				if (fixerBoxes[aBox.Key].Visibility == Visibility.Visible)
+                {
+					// but it's not fixed
+					if (!fixerBoxes[aBox.Key].IsFixed)
+                    {
+					// trigger a click;
+						FixClick(fixerBoxes[aBox.Key], null);
+                    }
+				}
+			}
+		}
+
+		// Used to check all our fixes on a pulse. If something changes in either the prefs file or the registry, this will light it up
+		public void WatchDeltas(object source, ElapsedEventArgs e)
+        {
+			// Grab the list of defined fixers from the fixers class.
+			var fixNames = fixers.FixerNames();
+			foreach (string key in fixNames)
+			{
+				var temp = fixers.GetFix(key);
+
+				// Check to see if it's already active or not
+				if (fixers.IsFixed(key))
+				{
+					// if the box isn't already showing fixed, change it
+					this.Dispatcher.Invoke(() =>
+					{
+						if (!fixerBoxes[key].IsFixed)
+							fixerBoxes[key].btnOn();
+						fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "yes");
+					});
+				}
+				else
+				{
+					// if the box is showing as fixed when, in reality, it isn't, change that
+					this.Dispatcher.Invoke(() =>
+					{
+						if (fixerBoxes[key].IsFixed)
+							fixerBoxes[key].btnOff();
+						fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "no");
+					});
+				}
+			}
+
+			// *************
+			// Numlock stuff
+				bool NumLock = (GetKeyState(0x90) & 0x0001) != 0;
+
+				if (fixers.watchNumL && !NumLock)
+				{
+					// Force NumLock back on
+					// Simulate a key press
+					Interop.keybd_event((byte)0x90,0x45,Interop.KEYEVENTF_EXTENDEDKEY | 0,IntPtr.Zero);
+
+					// Simulate a key release
+					Interop.keybd_event((byte)0x90,0x45,Interop.KEYEVENTF_EXTENDEDKEY | Interop.KEYEVENTF_KEYUP,	IntPtr.Zero);
+				}
+
+				if (NumLock)
+				{
+					this.Dispatcher.Invoke(() =>
+					{
+						fixerBoxes["NumL"].FixerImg.Source = new BitmapImage(new Uri(@"/graphics/num_lock_on.png", UriKind.Relative));
+					});
+				}
+				else {
+					this.Dispatcher.Invoke(() =>
+					{
+						fixerBoxes["NumL"].FixerImg.Source = new BitmapImage(new Uri(@"/graphics/num_lock_off.png", UriKind.Relative));
+					});
+				}
         }
 
 		// Loads fixers into the window. Determines their status and whether they are matched to the prefs
@@ -169,7 +285,7 @@ namespace Paneless
 			// Take care of watchers first so the tile has the correct infomration about whether it's active or not.
 			if (prefs.GetPref("ForceNumLockAlwaysOn") == "yes")
 			{
-				// If the fix for Num lock is active, start watching to keep it that way
+				// Set the flag that says num lock should be on
 				fixers.watchNumL = true;
 			}
 
@@ -188,18 +304,8 @@ namespace Paneless
 				fixerBoxes[key].tagClick += tagClick;
 				// Image update
 				fixerBoxes[key].FixerImg.Source = new BitmapImage(new Uri(temp["Img"], UriKind.Relative));
-				// Check to see if it's already active or not
-				if (fixers.IsFixed(key))
-				{
-					fixerBoxes[key].btnOn();
-					fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "yes");
-				}
-				else
-				{
-					fixerBoxes[key].btnOff();
-					fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "no");
-				}
 			}
+			WatchDeltas(null, null);
 		}
 
 		internal partial class Interop
@@ -225,41 +331,10 @@ namespace Paneless
 		}
 
 
-		// Implement a call with the right signature for events going off
-		private void watcher(object source, ElapsedEventArgs e) 
-		{
-			bool NumLock = (GetKeyState(0x90) & 0x0001) != 0;
-
-			if (fixers.watchNumL && !NumLock)
-			{
-				// Force NumLock back on
-				// Simulate a key press
-				Interop.keybd_event((byte)0x90,0x45,Interop.KEYEVENTF_EXTENDEDKEY | 0,IntPtr.Zero);
-
-				// Simulate a key release
-				Interop.keybd_event((byte)0x90,0x45,Interop.KEYEVENTF_EXTENDEDKEY | Interop.KEYEVENTF_KEYUP,	IntPtr.Zero);
-			}
-
-			if (NumLock)
-			{
-				this.Dispatcher.Invoke(() =>
-				{
-					fixerBoxes["NumL"].FixerImg.Source = new BitmapImage(new Uri(@"/graphics/num_lock_on.png", UriKind.Relative));
-				});
-			}
-			else {
-				this.Dispatcher.Invoke(() =>
-				{
-					fixerBoxes["NumL"].FixerImg.Source = new BitmapImage(new Uri(@"/graphics/num_lock_off.png", UriKind.Relative));
-				});
-			}
-
-		}
-
 		private void SetPlaceholder(object sender, RoutedEventArgs e)
 		{
 			if (Filter.Text.Length == 0)
-            {
+			{
 				Filter.Tag = "placeholder";
 				Filter.Text = "Filter fixes";
 				Filter.Foreground = new SolidColorBrush(Color.FromRgb(155, 155, 155));
@@ -271,7 +346,7 @@ namespace Paneless
 		{
 			// We have it flagged as a placeholder, so clear that and set the color to normal
 			if ((string) Filter.Tag == "placeholder")
-            {
+			{
 				Filter.Foreground = new SolidColorBrush(Color.FromRgb(44, 44, 44));
 				Filter.Text = "";
 				Filter.Tag = "";
@@ -292,21 +367,21 @@ namespace Paneless
 			addFixers();
 
 			// Start the watcher
-			System.Timers.Timer myTimer = new System.Timers.Timer();
+			System.Timers.Timer deltaTimer = new System.Timers.Timer();
 			// Tell the timer what to do when it elapses
-			myTimer.Elapsed += new ElapsedEventHandler(watcher);
+			deltaTimer.Elapsed += new ElapsedEventHandler(WatchDeltas);
 			// Set it to go off every second
-			myTimer.Interval = 1000;
+			deltaTimer.Interval = 10000;
 			// And start it        
-			myTimer.Enabled = true;
+			deltaTimer.Enabled = true;
 
 			// Force the filter box placeholder info (since WPF doesn't think placeholders are necessary or useful... apparently)
 			SetPlaceholder(null, null);
 		}
 
-        private void Rectangle_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
+		private void Rectangle_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
 
-        }
-    }
+		}
+	}
 }

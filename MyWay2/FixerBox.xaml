@@ -51,7 +51,7 @@
 					<RowDefinition Height="auto" MinHeight="45"/>
 					<RowDefinition Height="auto" MinHeight="55"/>
 				</Grid.RowDefinitions>
-				<Border BorderThickness="1" BorderBrush="#FFB4B4B4" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" MaxWidth="90" MaxHeight="90" VerticalAlignment="bottom">
+				<Border BorderThickness="1" BorderBrush="#FFB4B4B4" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" MaxWidth="100" MaxHeight="100" VerticalAlignment="bottom">
 					<Image Name="FixerImg" Source="/windows.jpg"/>
 				</Border>
 				<TextBlock Grid.Row="0" Grid.Column="1" 
