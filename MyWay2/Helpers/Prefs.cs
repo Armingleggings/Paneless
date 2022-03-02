@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Paneless.Helpers
@@ -12,41 +13,47 @@ namespace Paneless.Helpers
 		Dictionary<string,string> userPrefs = new Dictionary<string, string>();
 		public string settingsPath { get; } = "";
 		public string settingsFile { get; } = "";
+		public string settingsFullPath { get; } = "";
 
 
 		public Prefs(string MyDocsPath)
 		{
 			settingsPath = Path.Combine(MyDocsPath, "Paneless").ToString();
 			settingsFile = "prefs.txt";
+			settingsFullPath = Path.Combine(settingsPath, settingsFile).ToString();
 			LoadPrefs();
 		}
 
 		public void LoadPrefs()
 		{
-			string fullPath = settingsPath + "\\" + settingsFile;
-			if (File.Exists(fullPath))
+			// Make sure it's empty. Obviously will be on first, load, but we can load prefs later too
+			userPrefs.Clear();
+			if (File.Exists(settingsFullPath))
 			{
 				string[] temp;
-				string[] prefsLines = File.ReadAllLines(fullPath);
+				string[] prefsLines = File.ReadAllLines(settingsFullPath);
 				foreach (string aPref in prefsLines)
 				{
-					temp = aPref.Split("=");
-					userPrefs[temp[0]] = temp[1];
+					// The only input checking we use - is it a simple text=yes/no pattern?
+					if (Regex.IsMatch(aPref, @"[A-Za-z]{6,80}=(yes|no)", RegexOptions.IgnoreCase))
+					{
+						temp = aPref.Split("=");
+						userPrefs[temp[0]] = temp[1];
+					}
 				}
 			}
 		}
 
 		public void SavePrefs()
 		{
-			// Creates if necessary, ignores if already there
-			string fullPath = settingsPath + "\\" + settingsFile;
+			// creates if necessary, leaves it if it's already there
 			Directory.CreateDirectory(settingsPath);
 			List<string> lines = new List<string>();
 			foreach (KeyValuePair<string,string> pref in userPrefs)
 			{
 				lines.Add(pref.Key + "=" + pref.Value);
 			}
-			File.WriteAllLinesAsync(fullPath, lines);
+			File.WriteAllLinesAsync(settingsFullPath, lines);
 		}
 
 		public string GetAllPrefs()

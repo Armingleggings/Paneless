@@ -81,8 +81,8 @@ namespace Paneless
 		// If delta, adds a tag otherwise removes
 		public void DeltaCheck(string savedPref, string testState)
 		{
-			// If our current state doesn't match the pref file (also if the preference isn't saved I guess... havne't figured out what to do in a null case yet)
-			if (savedPref != testState && !DeltaFlag)
+			// If our current state doesn't match the pref file
+			if (savedPref != "" && savedPref != testState && !DeltaFlag)
 			{
 				PrefAlertBtn = new Button();
 				PrefAlertBtn.Content = "#PrefFileMismatch";

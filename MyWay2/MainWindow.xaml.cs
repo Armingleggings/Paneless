@@ -9,6 +9,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Linq;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
+using System.IO;
 
 namespace Paneless
 {
@@ -21,6 +23,8 @@ namespace Paneless
 		private Regis regStuff = new Regis();
 		// Loads preferences from the file
 		private Prefs prefs = null;
+		// A copy of prefs when loading a new file so we can undo
+		private Prefs holdPrefs = null;
 		// Holds onto tags for filtering - hashset is like an array, but the values are unique apparently so adding the same one does nothing (behavior that helps for what we're doing)
 		private HashSet<string> tags = new HashSet<string>();
 
@@ -37,6 +41,11 @@ namespace Paneless
 			return temp;
 		}
 
+		private void MultiStatus(string[] messages)
+		{
+			ShowStatus(String.Join("<LineBreak/>", messages));
+		}
+
 		private void ShowStatus(string status)
 		{
 			ClearStatus();
@@ -47,14 +56,14 @@ namespace Paneless
             {
 				status.Replace("#RestartWinExplorer", "");
 				btn = new Button();
-				btn.Content = "(Click here to retstart Windows Explorer Now)";
+				btn.Content = "(Click here to retstart Windows Explorer now)";
 				btn.Style = FindResource("LinkButton") as Style;
 				btn.Foreground = new SolidColorBrush(Color.FromRgb(222, 00, 40));
 				btn.Margin = new Thickness(4,4,4,4);
 				btn.Click += RestartWinExplorer;
             }
 
-			StatusBox.Content = status;
+			StatusBox.Text = status;
 			if (btn != null)
             {
 				StatusArea.Children.Add(btn);
@@ -63,7 +72,7 @@ namespace Paneless
 
 		private void ClearStatus()
 		{
-			StatusBox.Content = "";
+			StatusBox.Text = "";
 			// clear any prior button controls
 			StatusArea.Children.OfType<Button>().ToList().ForEach(b => StatusArea.Children.Remove(b));
 		}
@@ -171,11 +180,13 @@ namespace Paneless
 
 			// Handle the "clear" button
 			if (isFilter || isTags)
-				ClearButton.Content = "Clear Filter & Tags";
-			if (isTags && !isFilter)
-				ClearButton.Content = "Clear Tags";
-			if (!isTags && isFilter)
-				ClearButton.Content = "Clear Filter";
+				ClearButtonTxt.Text = "Clear Filter & Tags";
+			else if (isTags && !isFilter)
+				ClearButtonTxt.Text  = "Clear Tags";
+			else if (!isTags && isFilter)
+				ClearButtonTxt.Text  = "Clear Filter";
+			else
+				ClearButtonTxt.Text  = "Clear";
 		}
 
 		private void RemoveTag(object sender, RoutedEventArgs e)
@@ -203,7 +214,7 @@ namespace Paneless
 				btn.Content = lookingFor;
 				btn.Style = FindResource("LinkButton") as Style;
 				btn.Foreground = new SolidColorBrush(Color.FromRgb(80, 200, 255));
-				btn.HorizontalAlignment = HorizontalAlignment.Center;
+				btn.HorizontalContentAlignment = HorizontalAlignment.Right;
 				btn.Click += RemoveTag;
 				ActiveTags.Children.Add(btn);
 			}
@@ -215,6 +226,15 @@ namespace Paneless
 		private void MatchPrefs(object sender, RoutedEventArgs e)
 		{
 			ClearStatus();
+
+			// In case we were in the middle of a load of new prefs, the load is complete once we match so toggle the buttons
+			LoadPrefButton.Visibility = Visibility.Visible;
+			CancelPrefButton.Visibility = Visibility.Collapsed;
+
+			// Collect activation messages
+			string messages = "";
+			// throwaway to build the messages
+			string message = "";
 			foreach (var aBox in fixerBoxes)
 			{
 				FixerBox aFix = aBox.Value;
@@ -224,14 +244,58 @@ namespace Paneless
 					// trigger a click;
 					FixClick(aFix, null);
 					aFix.ClearDelta();
+					// Cheap way of saying, it's not blank
+					if (fixers.GetFix(aBox.Key).TryGetValue("Activation_message",out message) == true && (message.Length > 3))
+					{
+						messages += message;
+					}
                 }
 			}
 			// Tags just changed so update the view
 			TagFilter();
-			ShowStatus("Done!");
+			ShowStatus("Done! "+messages);
+		}
+		
+		// Takes all current fixes and makes a new prefs file from it
+		private void LoadPrefs(object sender, RoutedEventArgs e)
+		{
+			ClearStatus();
+
+			// Create OpenFileDialog
+			Microsoft.Win32.OpenFileDialog openFileDlg = new Microsoft.Win32.OpenFileDialog(); 
+       
+			// Launch OpenFileDialog by calling ShowDialog method
+			Nullable<bool> result = openFileDlg.ShowDialog();
+			if (result == true)
+			{
+				File.Copy(prefs.settingsFullPath,prefs.settingsPath+"\\prefs.bak");
+				File.Copy(openFileDlg.FileName, prefs.settingsFullPath);
+				prefs.LoadPrefs();
+				LoadPrefButton.Visibility = Visibility.Collapsed;
+				CancelPrefButton.Visibility = Visibility.Visible;
+
+				// Check for deltas vs the file
+				var fixNames = fixers.FixerNames();
+				foreach (string key in fixNames)
+				{
+					var temp = fixers.GetFix(key);
+					fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "yes");
+				}
+
+
+				ShowStatus("Loaded. Click CANCEL to return to your previous prefs or Match Prefs File to apply the changes");
+			}
+			else
+				ShowStatus("File could not be loaded!");
 		}
 
-
+		private void CancelPrefs(object sender, RoutedEventArgs e)
+		{
+			ClearStatus();
+			LoadPrefButton.Visibility = Visibility.Visible;
+			CancelPrefButton.Visibility = Visibility.Collapsed;
+			File.Copy(prefs.settingsPath+"\\prefs.bak",prefs.settingsFullPath);
+		}
 
 		private void ClearFilter(object sender, RoutedEventArgs e)
 		{
@@ -251,7 +315,10 @@ namespace Paneless
 		{
 			ClearStatus();
 
-			//<Button>
+			// Collect activation messages
+			string[] messages = new string[0];
+			// throwaway to build the messages
+			string message = "";
 			foreach (var aBox in fixerBoxes)
 			{
 				// It's visible...
@@ -260,12 +327,22 @@ namespace Paneless
 					// but it's not fixed
 					if (!fixerBoxes[aBox.Key].IsFixed)
                     {
-					// trigger a click;
+						// trigger a click;
 						FixClick(fixerBoxes[aBox.Key], null);
-                    }
+						// Cheap way of saying, it's not blank
+						if (fixers.GetFix(aBox.Key).TryGetValue("Activation_message",out message) == true && (message.Length > 3))
+						{
+							messages.Append(message);
+						}
+					}
+
 				}
 			}
-			ShowStatus("Done!");
+			// turn off for a sec to test multi-line messages
+			//if (messages.Length > 0)
+			//	messages = messages.Distinct().ToArray();
+			messages.Append("Done!");
+			MultiStatus(messages);
 		}
 
 		// Used to check all our fixes on a pulse. If something changes in either the prefs file or the registry, this will light it up
@@ -430,7 +507,7 @@ namespace Paneless
 
 			// Force the filter box placeholder info (since WPF doesn't think placeholders are necessary or useful... apparently)
 			SetPlaceholder(null, null);
-		}
 
+		}
 	}
 }
