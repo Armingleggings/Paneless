@@ -72,7 +72,6 @@ namespace Paneless.Helpers
 		public void SetPref(string key, string value)
 		{
 			userPrefs[key] = value;
-			SavePrefs();
 		}
 	}
 }

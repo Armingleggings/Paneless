@@ -41,54 +41,73 @@ namespace Paneless
 			return temp;
 		}
 
-		private void MultiStatus(string[] messages)
+		// Because it's complex trying to make status work properly with just strings, we need a translation function to take a string and make any needed changes
+		private WrapPanel StatusMessage(string status)
 		{
-			ShowStatus(String.Join("<LineBreak/>", messages));
-		}
-
-		private void ShowStatus(string status)
-		{
-			ClearStatus();
 			Button btn = null;
+			WrapPanel pnl = new WrapPanel();
 
 			// There's probably a much cleaner way of doing this. Oh well...
 			if (status.Contains("#RestartWinExplorer"))
-            {
+			{
 				status.Replace("#RestartWinExplorer", "");
 				btn = new Button();
 				btn.Content = "(Click here to retstart Windows Explorer now)";
 				btn.Style = FindResource("LinkButton") as Style;
-				btn.Foreground = new SolidColorBrush(Color.FromRgb(222, 00, 40));
+				btn.Foreground = new SolidColorBrush(Color.FromRgb(198, 00, 40));
 				btn.Margin = new Thickness(4,4,4,4);
 				btn.Click += RestartWinExplorer;
-            }
+			}
 
-			StatusBox.Text = status;
+			Label lbl = new Label();
+			lbl.Content = status;
+			lbl.Foreground = new SolidColorBrush(Color.FromRgb(38, 98, 150));
+			lbl.FontWeight = FontWeights.Bold;
+			pnl.Children.Add(lbl);
+
 			if (btn != null)
-            {
-				StatusArea.Children.Add(btn);
-            }
+			{
+				pnl.Children.Add(btn);
+			}
+			return pnl;
+		}
+
+		// At times we'll need to show multiple status messages at once. Make sure they're readable.
+		private void MultiStatus(List<string> messages)
+		{
+			ClearStatus();
+
+			foreach (string message in messages)
+			{
+				StatusArea.Children.Add(StatusMessage("* "+message));
+			}
+		}
+
+		// Show a single status message
+		private void ShowStatus(string status)
+		{
+			ClearStatus();
+
+			StatusArea.Children.Add(StatusMessage(status));
 		}
 
 		private void ClearStatus()
 		{
-			StatusBox.Text = "";
-			// clear any prior button controls
-			StatusArea.Children.OfType<Button>().ToList().ForEach(b => StatusArea.Children.Remove(b));
+			StatusArea.Children.Clear();
 		}
 
 		private void RestartWinExplorer(object sender, RoutedEventArgs e)
-        {
+		{
 			ShowStatus("Restarting");
 
 			Process p = new Process();
-            foreach (Process exe in Process.GetProcesses())
-            {
-                if (exe.ProcessName == "explorer")
-                    exe.Kill();
-            }
-            Process.Start("explorer.exe");
-        }
+			foreach (Process exe in Process.GetProcesses())
+			{
+				if (exe.ProcessName == "explorer")
+					exe.Kill();
+			}
+			Process.Start("explorer.exe");
+		}
 
 		private void FixClick(object sender, RoutedEventArgs e)
 		{
@@ -99,6 +118,8 @@ namespace Paneless
 			{
 				whichFix.btnOff();
 				prefs.SetPref(theFix["PrefName"],"no");
+				prefs.SavePrefs();
+
 				fixers.BreakIt(whichFix.Name);
 				fixerBoxes[whichFix.Name].ClearDelta();
 			}
@@ -106,6 +127,8 @@ namespace Paneless
 			{
 				whichFix.btnOn();
 				prefs.SetPref(theFix["PrefName"], "yes");
+				prefs.SavePrefs();
+
 				fixers.FixIt(whichFix.Name);
 				fixerBoxes[whichFix.Name].ClearDelta();
 			}
@@ -232,7 +255,7 @@ namespace Paneless
 			CancelPrefButton.Visibility = Visibility.Collapsed;
 
 			// Collect activation messages
-			string messages = "";
+			List<string> messages = new List<string>();
 			// throwaway to build the messages
 			string message = "";
 			foreach (var aBox in fixerBoxes)
@@ -246,44 +269,56 @@ namespace Paneless
 					aFix.ClearDelta();
 					// Cheap way of saying, it's not blank
 					if (fixers.GetFix(aBox.Key).TryGetValue("Activation_message",out message) == true && (message.Length > 3))
-					{
-						messages += message;
-					}
-                }
+						messages.Add(message);
+				}
 			}
 			// Tags just changed so update the view
 			TagFilter();
-			ShowStatus("Done! "+messages);
+			messages.Add("Done!");
+			MultiStatus(messages);
 		}
 		
-		// Takes all current fixes and makes a new prefs file from it
+		// Loads prefs and applies (or removes) any delta tags
+		private void DeltaCheckAll()
+		{
+			prefs.LoadPrefs();
+			var fixNames = fixers.FixerNames();
+			foreach (string key in fixNames)
+			{
+				var temp = fixers.GetFix(key);
+				fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "yes");
+			}
+		}
+
+		// Loads a user-custom prefs file with various settings. Good for "Win11 suite" or "Explorer only" customizations.
 		private void LoadPrefs(object sender, RoutedEventArgs e)
 		{
 			ClearStatus();
 
 			// Create OpenFileDialog
 			Microsoft.Win32.OpenFileDialog openFileDlg = new Microsoft.Win32.OpenFileDialog(); 
-       
+	   
 			// Launch OpenFileDialog by calling ShowDialog method
 			Nullable<bool> result = openFileDlg.ShowDialog();
 			if (result == true)
 			{
-				File.Copy(prefs.settingsFullPath,prefs.settingsPath+"\\prefs.bak");
+				// Copy commands can't overwrite so have ot start out by deleting.
+				if (File.Exists(prefs.settingsPath + "\\prefs.bak.txt"))
+					File.Delete(prefs.settingsPath + "\\prefs.bak.txt");
+
+				// Assuming a prefs file is there...
+				if (File.Exists(prefs.settingsFullPath))
+				{
+					File.Copy(prefs.settingsFullPath, prefs.settingsPath + "\\prefs.bak.txt");
+					File.Delete(prefs.settingsFullPath);
+				}
 				File.Copy(openFileDlg.FileName, prefs.settingsFullPath);
-				prefs.LoadPrefs();
 				LoadPrefButton.Visibility = Visibility.Collapsed;
 				CancelPrefButton.Visibility = Visibility.Visible;
 
-				// Check for deltas vs the file
-				var fixNames = fixers.FixerNames();
-				foreach (string key in fixNames)
-				{
-					var temp = fixers.GetFix(key);
-					fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "yes");
-				}
+				DeltaCheckAll();
 
-
-				ShowStatus("Loaded. Click CANCEL to return to your previous prefs or Match Prefs File to apply the changes");
+				ShowStatus("Loaded. Click CANCEL to return to your previous prefs or MATCH PREFS FILE to apply the changes");
 			}
 			else
 				ShowStatus("File could not be loaded!");
@@ -294,7 +329,15 @@ namespace Paneless
 			ClearStatus();
 			LoadPrefButton.Visibility = Visibility.Visible;
 			CancelPrefButton.Visibility = Visibility.Collapsed;
-			File.Copy(prefs.settingsPath+"\\prefs.bak",prefs.settingsFullPath);
+			// Remove the temp prefs file
+			if (File.Exists(prefs.settingsFullPath))
+				File.Delete(prefs.settingsFullPath);
+
+			// If we had one before, put it back
+			if (File.Exists(prefs.settingsPath + "\\prefs.bak.txt"))
+				File.Copy(prefs.settingsPath+"\\prefs.bak.txt",prefs.settingsFullPath);
+
+			DeltaCheckAll();
 		}
 
 		private void ClearFilter(object sender, RoutedEventArgs e)
@@ -311,43 +354,53 @@ namespace Paneless
 			TagFilter();
 		}
 		
+		// There were too many instance where I wanted to save all visible buttons in the positions they were in so I added a save button
+		private void SaveAll(object sender, RoutedEventArgs e)
+		{
+			var fixNames = fixers.FixerNames();
+			foreach (string key in fixNames)
+			{
+				var temp = fixers.GetFix(key);
+				prefs.SetPref(temp["PrefName"],fixerBoxes[key].IsFixed?"yes":"no");
+			}
+			prefs.SavePrefs();
+			ShowStatus("All current fix settings saved to prefs file.");
+		}
+
 		private void FixVisible(object sender, RoutedEventArgs e)
 		{
 			ClearStatus();
 
 			// Collect activation messages
-			string[] messages = new string[0];
+			List<string> messages = new List<string>();
 			// throwaway to build the messages
 			string message = "";
 			foreach (var aBox in fixerBoxes)
 			{
 				// It's visible...
 				if (fixerBoxes[aBox.Key].Visibility == Visibility.Visible)
-                {
+				{
 					// but it's not fixed
 					if (!fixerBoxes[aBox.Key].IsFixed)
-                    {
+					{
 						// trigger a click;
 						FixClick(fixerBoxes[aBox.Key], null);
 						// Cheap way of saying, it's not blank
 						if (fixers.GetFix(aBox.Key).TryGetValue("Activation_message",out message) == true && (message.Length > 3))
 						{
-							messages.Append(message);
+							messages.Add(message);
 						}
 					}
 
 				}
 			}
-			// turn off for a sec to test multi-line messages
-			//if (messages.Length > 0)
-			//	messages = messages.Distinct().ToArray();
-			messages.Append("Done!");
+			messages.Add("Done!");
 			MultiStatus(messages);
 		}
 
 		// Used to check all our fixes on a pulse. If something changes in either the prefs file or the registry, this will light it up
 		public void WatchDeltas(object source, ElapsedEventArgs e)
-        {
+		{
 			// Grab the list of defined fixers from the fixers class.
 			var fixNames = fixers.FixerNames();
 			foreach (string key in fixNames)
@@ -404,7 +457,8 @@ namespace Paneless
 						fixerBoxes["NumL"].FixerImg.Source = new BitmapImage(new Uri(@"/graphics/num_lock_off.png", UriKind.Relative));
 					});
 				}
-        }
+			//DeltaCheckAll();
+		}
 
 		// Loads fixers into the window. Determines their status and whether they are matched to the prefs
 		public void addFixers()

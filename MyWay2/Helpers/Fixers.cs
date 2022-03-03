@@ -33,7 +33,7 @@ namespace Paneless.Helpers
 					Windows 11 is trying to dumb down the controls which isn't actually that terrible of a thing. The issue is if you know what you're doing, what you're looking for, and the thing you're looking for
 					didn't make the cut meaning two clicks before become three now. This disables the easy mode feature and restores pre-windows 11 right-click
 					",
-				["Activation_message"] = @"Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+				["Activation_message"] = @"Show Right Click Menu - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
 				["Tags"] = "#Hidden Controls, #Windows Explorer, #Windows 11"
 			},
 			["F1"] = new Dictionary<string,string> {
@@ -78,7 +78,7 @@ namespace Paneless.Helpers
 				["Description"] = @"
 					Windows allows you to force numlock OFF during boot, but also has the (correct) option to force it ON. This forces it on for boot so numlock will be on during the boot proccess.
 					",
-				["Activation_message"] = @"Since this affects boot options, you won't see any changes until you next reboot",
+				["Activation_message"] = @"Num Lock on Boot - Since this affects boot options, you won't see any changes until you next reboot",
 				["Tags"] = "#Keyboard,#Boot,#NumLock"
 			},
 			["Expand"] = new Dictionary<string, string>
@@ -103,7 +103,7 @@ namespace Paneless.Helpers
 					which varies by which program currently has ""ownership of it"". So what happens when we install an alternate PDF reader (or one gets installed 
 					without us noticing) and the icon changes? Now there's no way to know what the hell it is. Extensions on ALWAYS. Let us see what the file actually IS!
 					",
-				["Activation_message"] = @"Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+				["Activation_message"] = @"Show File Extensions - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
 				["Tags"] = "#Windows Explorer,#Files"
 			},
 			["ShowFiles"] = new Dictionary<string, string>
@@ -116,7 +116,7 @@ namespace Paneless.Helpers
 					programming, settings files, and other stuff is hidden making it really hard to work with. This undoes that. You can still see they're hidden, 
 					but you can at least SEE them now. 
 					",
-				["Activation_message"] = @"Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+				["Activation_message"] = @"Show Hidden Files - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
 				["Tags"] = "#Windows Explorer,#Files"
 			},
 			["UserNav"] = new Dictionary<string, string>
@@ -142,7 +142,7 @@ namespace Paneless.Helpers
 					but all it does it complicate the view and make it impossible to find things. Woo! Let's hide most of the results by showing the most recent 3 or 4
 					and hiding the rest! Sensible, right? SMH... This removes ""Group By"" default settings for search it doesn't override your preferred view.
 					",
-				["Activation_message"] = @"Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+				["Activation_message"] = @"Disable Group-By (Search) - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
 				["Tags"] = "#Windows Explorer,#Rage"
 			},			
 			["DownloadGroupBy"] = new Dictionary<string, string>
@@ -166,7 +166,7 @@ namespace Paneless.Helpers
 					The Ribbon was a masterfull mix of function and design - so of course Microsoft removes it in Windows 11 without any clear/easy way to bring it back.
 					Well, some of us want to actually SEE more than 5 controls in our file explorer so this will bring back what they shouldn't have removed in the first place!
 					",
-				["Activation_message"] = @"Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+				["Activation_message"] = @"Windows Explorer Ribbon - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
 				["Tags"] = "#Windows Explorer,#Hidden Controls,#Downgrade,#Windows 11"
 			},
 			["Hibernate"] = new Dictionary<string, string>
@@ -189,12 +189,11 @@ namespace Paneless.Helpers
 					It's curious isn't it? Who would have ever thought that while we're looking for commands, programs, files on our computer, we want to see result FROM THE WEB!?
 					Click to disable this asinine behavior and end the timewasting distraction of web results where they don't belong.
 					",
-				["Activation_message"] = @"Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+				["Activation_message"] = @"Turn off Web in the Start Menu - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
 				["Tags"] = "#Start Menu, #Internet, #Feature Bleed"
 			},
 		};
 
-		// remove start menu search online
 		// remove cortana
 
 		public Fixers()

@@ -30,7 +30,7 @@
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="80"/>
-			<RowDefinition Height="25"/>
+			<RowDefinition Height="auto" MinHeight="25"/>
 			<RowDefinition Height="60"/>
 			<RowDefinition />
 		</Grid.RowDefinitions>
@@ -42,21 +42,23 @@
 
 			<WrapPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="center">
 				<Image Source="Graphics/logo.png" Margin="5,5,5,5"/>
-				<Label Content="PaneLess" Foreground="#FF41B8C1" FontFamily="Microsoft Sans Serif" FontSize="56" />
+				<Label Content="PaneLess" FontFamily="Microsoft Sans Serif" FontSize="56" Foreground="#FF4472C4" FontWeight="Bold" />
 			</WrapPanel>
 		</Grid>
 
-		<WrapPanel Grid.Row="1" Name="StatusArea" Background="Gainsboro" VerticalAlignment="Stretch">
-			<TextBlock Name="StatusBox" Foreground="#FF0B5B47"></TextBlock>
-		</WrapPanel>
+		<UniformGrid Grid.Row="1" Name="StatusArea" Background="#FFF0F0F0" Columns="1">
+			<Label Name="TempWillBeRemoved"></Label>
+		</UniformGrid>
 		<Grid Name="Controls" Grid.Row="2">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="130"/>
-				<ColumnDefinition />
-				<ColumnDefinition Width="300"/>
+				<ColumnDefinition Width="5.101"/>
+				<ColumnDefinition Width="124.899"/>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition/>
+				<ColumnDefinition Width="Auto"/>
 			</Grid.ColumnDefinitions>
 
-			<Border Grid.Column="0" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="5,3,5,3">
+			<Border Grid.Column="0" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="5,3,5,3" Grid.ColumnSpan="2">
 				<TextBox HorizontalAlignment="Stretch" Grid.Column="0" Name="Filter" Height="25" Foreground="#FF989898" LostFocus="SetPlaceholder" GotFocus="ClearPlaceholder" KeyUp="FilterFixes" Tag="placeholder">
 					<TextBox.Resources>
 						<Style TargetType="{x:Type Border}">
@@ -65,7 +67,7 @@
 					</TextBox.Resources>
 				</TextBox>
 			</Border>
-			<Border Grid.Column="1" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="5,3,5,3">
+			<Border Grid.Column="2" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="5,3,5,3" Grid.ColumnSpan="2">
 				<Grid >
 					<Grid.RowDefinitions>
 						<RowDefinition Height="25"/>
@@ -79,7 +81,7 @@
 					</WrapPanel>
 				</Grid>
 			</Border>
-			<Border Grid.Column="2" CornerRadius="5,5,5,5" BorderThickness="0" BorderBrush="#FF828282">
+			<Border Grid.Column="4" CornerRadius="5,5,5,5" BorderThickness="0" BorderBrush="#FF828282">
 				<Grid>
 
 					<Grid.RowDefinitions>
@@ -89,6 +91,7 @@
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="60" />
 						<ColumnDefinition Width="130" />
+						<ColumnDefinition Width="60" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
 
@@ -111,7 +114,16 @@
 						</Button.Resources>
 					</Button>
 
-					<Button Grid.Row="0" Margin="3,3,0,2" Grid.Column="2"  Name="MatchAllButton" Content="Match Prefs File" Background="#FFF5EED9" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="MatchPrefs" HorizontalAlignment="Stretch">
+					<Button Grid.Row="0" Margin="3,3,3,0" Grid.Column="2" Grid.RowSpan="2" Name="SaveButton" Content="Save" Background="#FFD2FFB2" VerticalAlignment="Stretch" BorderBrush="#FF52C961" BorderThickness="1" Click="SaveAll" HorizontalAlignment="Stretch" FontWeight="Normal" FontFamily="Arial Rounded MT Bold">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="4"/>
+								<Setter Property="ToolTip" Value="Save all button positions to the prefs file. Note that each time you toggle a fix, that fix is recorded individually in the prefs files as well." />
+							</Style>
+						</Button.Resources>
+					</Button>
+
+					<Button Grid.Row="0" Margin="3,3,0,2" Grid.Column="3"  Name="MatchAllButton" Content="Match Prefs File" Background="#FFF5EED9" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="MatchPrefs" HorizontalAlignment="Stretch">
 						<Button.Resources>
 							<Style TargetType="Border">
 								<Setter Property="CornerRadius" Value="4"/>
@@ -120,7 +132,7 @@
 						</Button.Resources>
 					</Button>
 
-					<Button Grid.Row="1" Margin="3,2,0,0" Grid.Column="2"  Name="LoadPrefButton" Content="Load Prefs File" Background="#FFF5EED9" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="LoadPrefs" HorizontalAlignment="Stretch">
+					<Button Grid.Row="1" Margin="3,2,0,0" Grid.Column="3"  Name="LoadPrefButton" Content="Load Prefs File" Background="#FFF5EED9" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="LoadPrefs" HorizontalAlignment="Stretch">
 						<Button.Resources>
 							<Style TargetType="Border">
 								<Setter Property="CornerRadius" Value="4"/>
@@ -129,7 +141,7 @@
 						</Button.Resources>
 					</Button>
 
-					<Button Grid.Row="1" Margin="3,2,0,0" Grid.Column="2"  Name="CancelPrefButton" Content="Cancel Load" Background="#FFCACACA" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="CancelPrefs" HorizontalAlignment="Stretch" Visibility="Collapsed">
+					<Button Grid.Row="1" Margin="3,2,0,0" Grid.Column="3"  Name="CancelPrefButton" Content="Cancel Load" Background="#FFCACACA" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="CancelPrefs" HorizontalAlignment="Stretch" Visibility="Collapsed">
 						<Button.Resources>
 							<Style TargetType="Border">
 								<Setter Property="CornerRadius" Value="4"/>
