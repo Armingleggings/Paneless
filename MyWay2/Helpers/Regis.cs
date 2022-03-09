@@ -145,7 +145,8 @@ namespace Paneless.Helpers
 			using (var baseKey = RegistryKey.OpenBaseKey(registryHive, RegistryView.Registry64))
 			{
 				// Adding false to this command says not to throw an exception if the key doesn't exist - just ignore
-				baseKey.DeleteSubKeyTree(fullPathKeyToDelete, false);
+				//baseKey.DeleteSubKeyTree(fullPathKeyToDelete, false);
+				baseKey.DeleteSubKeyTree(fullPathKeyToDelete);
 			}
 		}
 

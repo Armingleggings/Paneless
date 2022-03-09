@@ -5,7 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:Paneless"
 		mc:Ignorable="d"
-		Title="PaneLess" Height="850" Width="1300" Background="#FF323030">
+		Title="PaneLess" Height="850" Width="1400" Background="#FF323030">
 	<Window.Resources>
 		<Style x:Key="LinkButton" TargetType="Button">
 			<Setter Property="Template">
@@ -46,28 +46,31 @@
 			</WrapPanel>
 		</Grid>
 
-		<UniformGrid Grid.Row="1" Name="StatusArea" Background="#FFF0F0F0" Columns="1">
+		<UniformGrid Grid.Row="1" Name="StatusArea" Columns="1">
+			<UniformGrid.Background>
+				<SolidColorBrush Color="#FFF0F0F0"/>
+			</UniformGrid.Background>
 			<Label Name="TempWillBeRemoved"></Label>
 		</UniformGrid>
-		<Grid Name="Controls" Grid.Row="2">
+		
+		<Grid Name="FiltersArea" Grid.Row="2">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="5.101"/>
-				<ColumnDefinition Width="124.899"/>
-				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="120"/>
 				<ColumnDefinition/>
-				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="120"/>
 			</Grid.ColumnDefinitions>
 
-			<Border Grid.Column="0" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="5,3,5,3" Grid.ColumnSpan="2">
+			<Border Grid.Column="0" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="3" >
 				<TextBox HorizontalAlignment="Stretch" Grid.Column="0" Name="Filter" Height="25" Foreground="#FF989898" LostFocus="SetPlaceholder" GotFocus="ClearPlaceholder" KeyUp="FilterFixes" Tag="placeholder">
 					<TextBox.Resources>
 						<Style TargetType="{x:Type Border}">
 							<Setter Property="CornerRadius" Value="3"/>
+							<Setter Property="ToolTip" Value="Type any text here to filter fixes to only those with matching text." />
 						</Style>
 					</TextBox.Resources>
 				</TextBox>
 			</Border>
-			<Border Grid.Column="2" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="5,3,5,3" Grid.ColumnSpan="2">
+			<Border Grid.Column="1" CornerRadius="5,5,5,5" BorderThickness="1" Cursor="Hand" BorderBrush="#FF828282" Padding="5,5,5,5" Margin="3" >
 				<Grid >
 					<Grid.RowDefinitions>
 						<RowDefinition Height="25"/>
@@ -81,31 +84,35 @@
 					</WrapPanel>
 				</Grid>
 			</Border>
-			<Border Grid.Column="4" CornerRadius="5,5,5,5" BorderThickness="0" BorderBrush="#FF828282">
-				<Grid>
+			<Border Grid.Column="2" CornerRadius="5,5,5,5" BorderThickness="0" BorderBrush="#FF828282">
+				<Button Grid.Row="0" Margin="3" Grid.Column="0" Grid.RowSpan="2" Name="ClearButton" Background="#FFF5EED9" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="ClearFilter" HorizontalAlignment="Stretch" >
+					<TextBlock Name="ClearButtonTxt" Text="Clear Filter and Tags" TextWrapping="Wrap" TextAlignment="Center" Height="auto"/>
+					<Button.Resources>
+						<Style TargetType="Border">
+							<Setter Property="CornerRadius" Value="4"/>
+							<Setter Property="ToolTip" Value="Removes any text filters or selected tags and shows all available fixes." />
+						</Style>
+					</Button.Resources>
+				</Button>
 
-					<Grid.RowDefinitions>
-						<RowDefinition Height="27" />
-						<RowDefinition Height="27" />
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="60" />
-						<ColumnDefinition Width="130" />
-						<ColumnDefinition Width="60" />
-						<ColumnDefinition Width="*" />
-					</Grid.ColumnDefinitions>
+			</Border>
+		</Grid>
 
-					<Button Grid.Row="0" Margin="3,3,3,0" Grid.Column="0" Grid.RowSpan="2" Name="ClearButton" Background="#FFF5EED9" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="ClearFilter" HorizontalAlignment="Stretch" >
-						<TextBlock Name="ClearButtonTxt" Text="Clear" TextWrapping="Wrap" TextAlignment="Center" Height="auto"/>
-						<Button.Resources>
-							<Style TargetType="Border">
-								<Setter Property="CornerRadius" Value="4"/>
-								<Setter Property="ToolTip" Value="Clears the text filter and/or tags and shows all available fixes" />
-							</Style>
-						</Button.Resources>
-					</Button>
+		<Grid Grid.Row="3">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition />
+				<ColumnDefinition Width="120"/>
+			</Grid.ColumnDefinitions>
 
-					<Button Grid.Row="0" Margin="3,3,3,0" Grid.Column="1" Grid.RowSpan="2" Name="FixAllButton" Content="Apply visible fixes" Background="#FFD2FFB2" VerticalAlignment="Stretch" BorderBrush="#FF52C961" BorderThickness="1" Click="FixVisible" HorizontalAlignment="Stretch" FontWeight="Normal" FontFamily="Arial Rounded MT Bold">
+			<ScrollViewer Grid.Column="0" ScrollViewer.VerticalScrollBarVisibility="Visible">
+				<WrapPanel Name="FixersArea" Orientation="Horizontal" Width="auto" ></WrapPanel>
+			</ScrollViewer>
+
+			<WrapPanel Grid.Column="1" Margin="3">
+				<UniformGrid Columns="1">
+
+					<Label Content="Fixes" Foreground="#FFD7ECFF" FontWeight="Bold" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" BorderBrush="#FFD7ECFF" BorderThickness="0,0,0,2"/>
+					<Button Name="FixAllButton" Margin="3" Content="Apply visible fixes" Background="#FFD2FFB2" BorderBrush="#FF52C961" BorderThickness="1" Click="FixVisible" FontWeight="Normal" FontFamily="Arial Rounded MT Bold">
 						<Button.Resources>
 							<Style TargetType="Border">
 								<Setter Property="CornerRadius" Value="4"/>
@@ -114,7 +121,8 @@
 						</Button.Resources>
 					</Button>
 
-					<Button Grid.Row="0" Margin="3,3,3,0" Grid.Column="2" Grid.RowSpan="2" Name="SaveButton" Content="Save" Background="#FFD2FFB2" VerticalAlignment="Stretch" BorderBrush="#FF52C961" BorderThickness="1" Click="SaveAll" HorizontalAlignment="Stretch" FontWeight="Normal" FontFamily="Arial Rounded MT Bold">
+					<Label Content="Save prefs" Foreground="#FFD7ECFF" FontWeight="Bold" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" BorderBrush="#FFD7ECFF" BorderThickness="0,0,0,2"/>
+					<Button  Name="SaveButton" Margin="3" Content="Save to Prefs.txt" Background="#FFD2FFB2" VerticalAlignment="Stretch" BorderBrush="#FF52C961" BorderThickness="1" Click="SaveAll" FontWeight="Normal" FontFamily="Arial Rounded MT Bold">
 						<Button.Resources>
 							<Style TargetType="Border">
 								<Setter Property="CornerRadius" Value="4"/>
@@ -122,8 +130,25 @@
 							</Style>
 						</Button.Resources>
 					</Button>
+					<Button  Name="BackupButton" Margin="3" Content="Backup Prefs.txt" Background="#FFD2FFB2" VerticalAlignment="Stretch" BorderBrush="#FF52C961" BorderThickness="1" Click="BackupPrefs" FontWeight="Normal" FontFamily="Arial Rounded MT Bold">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="4"/>
+								<Setter Property="ToolTip" Value="Creates a backup file of the current Prefs.txt with a date/time prefix." />
+							</Style>
+						</Button.Resources>
+					</Button>
 
-					<Button Grid.Row="0" Margin="3,3,0,2" Grid.Column="3"  Name="MatchAllButton" Content="Match Prefs File" Background="#FFF5EED9" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="MatchPrefs" HorizontalAlignment="Stretch">
+					<Label Content="Load prefs" Foreground="#FFD7ECFF" FontWeight="Bold" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" BorderBrush="#FFD7ECFF" BorderThickness="0,0,0,2"/>
+					<Button Name="LoadPrefButton" Margin="3" Content="Load Prefs File" Background="#FFF5EED9"  BorderBrush="#FFE0C567" BorderThickness="1" Click="LoadPrefs" >
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="4"/>
+								<Setter Property="ToolTip" Value="Select a preferences file to compare to your current settings. Does not make changes until/unless you click the Match Prefs file button!" />
+							</Style>
+						</Button.Resources>
+					</Button>
+					<Button Name="MatchAllButton" Margin="3" Content="Match Prefs File" Background="#FFF5EED9" BorderBrush="#FFE0C567" BorderThickness="1" Click="MatchPrefs" >
 						<Button.Resources>
 							<Style TargetType="Border">
 								<Setter Property="CornerRadius" Value="4"/>
@@ -132,16 +157,7 @@
 						</Button.Resources>
 					</Button>
 
-					<Button Grid.Row="1" Margin="3,2,0,0" Grid.Column="3"  Name="LoadPrefButton" Content="Load Prefs File" Background="#FFF5EED9" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="LoadPrefs" HorizontalAlignment="Stretch">
-						<Button.Resources>
-							<Style TargetType="Border">
-								<Setter Property="CornerRadius" Value="4"/>
-								<Setter Property="ToolTip" Value="Select a preferences file to compare to your current settings. Does not make changes until/unless you click the Match Prefs file button!" />
-							</Style>
-						</Button.Resources>
-					</Button>
-
-					<Button Grid.Row="1" Margin="3,2,0,0" Grid.Column="3"  Name="CancelPrefButton" Content="Cancel Load" Background="#FFCACACA" VerticalAlignment="Stretch" BorderBrush="#FFE0C567" BorderThickness="1" Click="CancelPrefs" HorizontalAlignment="Stretch" Visibility="Collapsed">
+					<Button Name="CancelPrefButton" Margin="3" Content="Cancel Load" Background="#FFCACACA"  BorderBrush="#FFE0C567" BorderThickness="1" Click="CancelPrefs" Visibility="Collapsed">
 						<Button.Resources>
 							<Style TargetType="Border">
 								<Setter Property="CornerRadius" Value="4"/>
@@ -150,13 +166,32 @@
 						</Button.Resources>
 					</Button>
 
-				</Grid>
-			</Border>
-		</Grid>
+					<Label Content="Snark Level" Foreground="#FFD7ECFF" FontWeight="Bold" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" BorderBrush="#FFD7ECFF" BorderThickness="0,0,0,2"/>
+					<Button  Name="FullSnarkButton" Margin="3" Content="Full Snark" Background="#FFDADADA" VerticalAlignment="Stretch" BorderBrush="#FFB4B4B4" BorderThickness="1" Click="FullSnark" FontWeight="Normal" FontFamily="Arial Rounded MT Bold">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="4"/>
+								<Setter Property="ToolTip" Value="Show the fix descriptions with the full and un-edited grump they were originally designed with." />
+							</Style>
+						</Button.Resources>
+					</Button>
+					<Button  Name="NoSnarkButton" Margin="3" Content="No Snark" Background="#FFDADADA" VerticalAlignment="Stretch" BorderBrush="#FFB4B4B4" BorderThickness="1" Click="NoSnark" FontWeight="Normal" FontFamily="Arial Rounded MT Bold">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="4"/>
+								<Setter Property="ToolTip" Value="Minimal and factual descriptions without snark." />
+							</Style>
+						</Button.Resources>
+					</Button>
+					
+				</UniformGrid>
 
-		<ScrollViewer Grid.Row="3" ScrollViewer.VerticalScrollBarVisibility="Visible">
-			<WrapPanel Name="FixersArea" Orientation="Horizontal" Width="auto" ></WrapPanel>
-		</ScrollViewer>
+				<WrapPanel Name="SpaceFiller" Grid.Row="1">
+
+				</WrapPanel>
+
+			</WrapPanel>
+		</Grid>
 
 	</Grid>
 </Window>

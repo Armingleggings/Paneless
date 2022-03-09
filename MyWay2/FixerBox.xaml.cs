@@ -21,12 +21,6 @@ namespace Paneless
 	/// </summary>
 	public partial class FixerBox : UserControl
 	{
-		Thickness btnDotOn = new Thickness(-60, 0, 0, 0);
-		Thickness btnDotOff = new Thickness(0, 0, -60, 0);
-		SolidColorBrush dotOn = new SolidColorBrush(Color.FromRgb(84, 130, 53));
-		SolidColorBrush dotOff = new SolidColorBrush(Color.FromRgb(207, 178, 76));
-		SolidColorBrush bkOn = new SolidColorBrush(Color.FromRgb(226, 240, 217));
-		SolidColorBrush bkOff = new SolidColorBrush(Color.FromRgb(255, 242, 204));
 
 		public event RoutedEventHandler toggleClick;
 		public event RoutedEventHandler tagClick;
@@ -35,14 +29,14 @@ namespace Paneless
 		public bool DeltaFlag { get; set; } = false;
 
 		public bool IsFixed { get; set; } = false;
-		
+	
 		public FixerBox(Dictionary<string,string> deets)
 		{
 			InitializeComponent();
 			btnOff();
 			this.Name = deets["Name"];
 			this.FixerTitle.Text = deets["Title"];
-			this.FixerDesc.Text = deets["Description"];
+			this.FixerDesc.Text = deets["Snark"];
 			var temp = deets["Tags"].Split(',');
 			Button btn = null;
 			// remove placeholder
@@ -58,23 +52,22 @@ namespace Paneless
 			}
 		}
 
+		public void SetDesc(string desc)
+		{
+			this.FixerDesc.Text = desc;
+		}
+
 		public void btnOn() 
 		{
 			IsFixed = true;
-			FixBtnBk.Fill = bkOn;
-			FixBtnBk.Stroke = dotOn;
-			FixBtnDot.Fill = dotOn;
-			FixBtnDot.Margin = btnDotOn;
-			FixBtnTxt.Visibility = Visibility.Visible;
+			FixedButton.Visibility = Visibility.Visible;
+			FixButton.Visibility = Visibility.Hidden;
 		}
 		public void btnOff() 
 		{
 			IsFixed = false;
-			FixBtnBk.Fill = bkOff;
-			FixBtnBk.Stroke = dotOff;
-			FixBtnDot.Fill = dotOff;
-			FixBtnDot.Margin = btnDotOff;
-			FixBtnTxt.Visibility = Visibility.Hidden;
+			FixButton.Visibility = Visibility.Visible;
+			FixedButton.Visibility = Visibility.Hidden;
 		}
 
 		// Given a saved pref and a current test state, does the test state match that saved value
@@ -112,11 +105,6 @@ namespace Paneless
 			catch(Exception ex)
 			{
 			}
-		}
-
-		private Type GetType(object sender)
-		{
-			throw new NotImplementedException();
 		}
 
 		private void TagClick(object sender, RoutedEventArgs e)

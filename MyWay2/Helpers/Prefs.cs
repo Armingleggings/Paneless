@@ -28,7 +28,7 @@ namespace Paneless.Helpers
 		{
 			// Make sure it's empty. Obviously will be on first, load, but we can load prefs later too
 			userPrefs.Clear();
-			if (File.Exists(settingsFullPath))
+			if (PrefsFileExists())
 			{
 				string[] temp;
 				string[] prefsLines = File.ReadAllLines(settingsFullPath);
@@ -44,7 +44,7 @@ namespace Paneless.Helpers
 			}
 		}
 
-		public void SavePrefs()
+		public void SavePrefs(bool backup=false)
 		{
 			// creates if necessary, leaves it if it's already there
 			Directory.CreateDirectory(settingsPath);
@@ -53,7 +53,23 @@ namespace Paneless.Helpers
 			{
 				lines.Add(pref.Key + "=" + pref.Value);
 			}
-			File.WriteAllLinesAsync(settingsFullPath, lines);
+			if (!backup)
+				File.WriteAllLinesAsync(settingsFullPath, lines);
+			else
+			{
+				DateTime now = DateTime.Now;
+				File.WriteAllLinesAsync(Path.Combine(settingsPath, now.ToString("yyyyMMMdd_HHmmss")+"-"+settingsFile).ToString(), lines);
+			}
+		}
+
+		public void BackupPrefs()
+		{
+			SavePrefs(true);
+		}
+
+		public bool PrefsFileExists()
+		{
+			return File.Exists(settingsFullPath);
 		}
 
 		public string GetAllPrefs()
@@ -71,7 +87,10 @@ namespace Paneless.Helpers
 
 		public void SetPref(string key, string value)
 		{
-			userPrefs[key] = value;
+			if (userPrefs.ContainsKey(key))
+				userPrefs[key] = value;
+			else
+				userPrefs.Add(key, value);
 		}
 	}
 }

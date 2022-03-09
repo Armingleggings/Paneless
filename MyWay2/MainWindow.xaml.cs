@@ -11,6 +11,8 @@ using System.Linq;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Windows.Navigation;
+using System.Windows.Media.Animation;
 
 namespace Paneless
 {
@@ -23,8 +25,6 @@ namespace Paneless
 		private Regis regStuff = new Regis();
 		// Loads preferences from the file
 		private Prefs prefs = null;
-		// A copy of prefs when loading a new file so we can undo
-		private Prefs holdPrefs = null;
 		// Holds onto tags for filtering - hashset is like an array, but the values are unique apparently so adding the same one does nothing (behavior that helps for what we're doing)
 		private HashSet<string> tags = new HashSet<string>();
 
@@ -33,7 +33,7 @@ namespace Paneless
 		public static extern short GetKeyState(int keyCode);
 
 		// Create a dictionary to hold our various controls.
-		private Dictionary<string,FixerBox> fixerBoxes = new Dictionary<string, FixerBox> { };
+		private Dictionary<string, FixerBox> fixerBoxes = new Dictionary<string, FixerBox> { };
 
 		private string ClearWS(string str)
 		{
@@ -55,7 +55,7 @@ namespace Paneless
 				btn.Content = "(Click here to retstart Windows Explorer now)";
 				btn.Style = FindResource("LinkButton") as Style;
 				btn.Foreground = new SolidColorBrush(Color.FromRgb(198, 00, 40));
-				btn.Margin = new Thickness(4,4,4,4);
+				btn.Margin = new Thickness(4, 4, 4, 4);
 				btn.Click += RestartWinExplorer;
 			}
 
@@ -72,10 +72,22 @@ namespace Paneless
 			return pnl;
 		}
 
+		private void PulseStatus()
+		{	
+
+			ColorAnimation animation;
+			animation = new ColorAnimation();
+			animation.To = Color.FromRgb(40, 111, 60);
+			animation.Duration = new Duration(TimeSpan.FromSeconds(.2));
+			animation.AutoReverse = true;
+ 
+			StatusArea.Background.BeginAnimation(SolidColorBrush.ColorProperty, animation);
+		}
 		// At times we'll need to show multiple status messages at once. Make sure they're readable.
 		private void MultiStatus(List<string> messages)
 		{
 			ClearStatus();
+			PulseStatus();
 
 			foreach (string message in messages)
 			{
@@ -87,6 +99,7 @@ namespace Paneless
 		private void ShowStatus(string status)
 		{
 			ClearStatus();
+			PulseStatus();
 
 			StatusArea.Children.Add(StatusMessage(status));
 		}
@@ -201,15 +214,6 @@ namespace Paneless
 				}
 			}
 
-			// Handle the "clear" button
-			if (isFilter || isTags)
-				ClearButtonTxt.Text = "Clear Filter & Tags";
-			else if (isTags && !isFilter)
-				ClearButtonTxt.Text  = "Clear Tags";
-			else if (!isTags && isFilter)
-				ClearButtonTxt.Text  = "Clear Filter";
-			else
-				ClearButtonTxt.Text  = "Clear";
 		}
 
 		private void RemoveTag(object sender, RoutedEventArgs e)
@@ -302,6 +306,12 @@ namespace Paneless
 			Nullable<bool> result = openFileDlg.ShowDialog();
 			if (result == true)
 			{
+				if (openFileDlg.FileName == prefs.settingsFullPath)
+				{
+					ShowStatus("Load prefs is for opening custom and alternate prefs files, not the default PREFS.TXT file. ");
+					return;
+				}
+
 				// Copy commands can't overwrite so have ot start out by deleting.
 				if (File.Exists(prefs.settingsPath + "\\prefs.bak.txt"))
 					File.Delete(prefs.settingsPath + "\\prefs.bak.txt");
@@ -354,17 +364,47 @@ namespace Paneless
 			TagFilter();
 		}
 		
-		// There were too many instance where I wanted to save all visible buttons in the positions they were in so I added a save button
-		private void SaveAll(object sender, RoutedEventArgs e)
+		// Looks through the fixers and matches our prefs to whatever we see (used for saving and for first-load backup)
+		private void ScrapePrefs()
 		{
 			var fixNames = fixers.FixerNames();
+			string yesNo = "";
 			foreach (string key in fixNames)
 			{
 				var temp = fixers.GetFix(key);
-				prefs.SetPref(temp["PrefName"],fixerBoxes[key].IsFixed?"yes":"no");
+				yesNo = fixerBoxes[key].IsFixed ? "yes" : "no";
+				prefs.SetPref(temp["PrefName"],yesNo);
 			}
+		}
+
+		// Snark levels - Want to have some fun, but not offend anyone so you can choose what level of snark to use.
+		private void FullSnark(object sender, RoutedEventArgs e)
+		{
+			ShowStatus("Let's face it: Microsoft decisions for some controls are just bone-headed. No need to pull punches, right?");
+			foreach (var aBox in fixerBoxes)
+				aBox.Value.FixerDesc.Text = fixers.GetFix(aBox.Key)["Snark"];
+		}
+
+		private void NoSnark(object sender, RoutedEventArgs e)
+		{
+			ShowStatus("Minimal snark descriptions activated.");
+			foreach (var aBox in fixerBoxes)
+				aBox.Value.FixerDesc.Text = fixers.GetFix(aBox.Key)["Description"];
+		}
+
+		// There were too many instance where I wanted to save all visible buttons in the positions they were in so I added a save button
+		private void SaveAll(object sender, RoutedEventArgs e)
+		{
+			ScrapePrefs();
 			prefs.SavePrefs();
 			ShowStatus("All current fix settings saved to prefs file.");
+		}
+
+		// There were too many instance where I wanted to save all visible buttons in the positions they were in so I added a save button
+		private void BackupPrefs(object sender, RoutedEventArgs e)
+		{
+			prefs.BackupPrefs();
+			ShowStatus("Backed up the Prefs.txt file. The new file can be found in the same folder as Prefs.txt");
 		}
 
 		private void FixVisible(object sender, RoutedEventArgs e)
@@ -461,7 +501,7 @@ namespace Paneless
 		}
 
 		// Loads fixers into the window. Determines their status and whether they are matched to the prefs
-		public void addFixers()
+		public void AddFixers()
 		{
 			// Grab the list of defined fixers from the fixers class.
 			var fixNames = fixers.FixerNames();
@@ -548,10 +588,20 @@ namespace Paneless
 			// Had to do it here because it needs this path, but we couldn't use the regstuff var in the initializers area (shrug)
 			prefs = new Prefs(regStuff.MyDocsPath());
 
-			addFixers();
+			AddFixers();
+
+			// No prefs file? Is this the first load situation? Either way, make one and a backup of the current state
+			// Have to do this after AddFixers() or stuff breaks
+			if (!prefs.PrefsFileExists())
+			{
+				// Save all current stuff to prefs dictionary
+				ScrapePrefs();
+				// Now create a backup
+				prefs.BackupPrefs();
+			}
 
 			// Start the watcher
-			System.Timers.Timer deltaTimer = new System.Timers.Timer();
+			Timer deltaTimer = new Timer();
 			// Tell the timer what to do when it elapses
 			deltaTimer.Elapsed += new ElapsedEventHandler(WatchDeltas);
 			// Set it to go off every second

@@ -58,18 +58,25 @@
 					Name="FixerTitle" FontSize="15" FontFamily="Arial Rounded MT Bold" FontWeight="Bold" TextWrapping="Wrap"
 					HorizontalAlignment="right" VerticalAlignment="Bottom" 
 					Margin="0,0,10,4">Title for some annoying Windows Thing</TextBlock>
-				<Border x:Name="FixBtnArea" CornerRadius="12,0,0,0" BorderThickness="0" Grid.Row="1" Grid.Column="1" Background="#FFC5C5C5" Cursor="Hand">
+				<Border Name="FixedButton" CornerRadius="12,0,0,0" BorderThickness="0" Grid.Row="1" Grid.Column="1" Background="#FFC5C5C5" Cursor="Hand" Visibility="Hidden">
 					<Grid>
-						<Rectangle x:Name="FixBtnBk" Fill="#FFFFF2CC" Width="100" Height="40" RadiusX="20" RadiusY="20" VerticalAlignment="Center" Stroke="#FFCFB24C" StrokeThickness="1" MouseLeftButtonDown="FixBtnClick"/>
-						<Ellipse x:Name="FixBtnDot" Fill="#FFCFB24C" Height="30" Width="30" VerticalAlignment="Center" MouseLeftButtonDown="FixBtnClick"/>
-						<Label x:Name="FixBtnTxt" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="30,0,0,0" FontFamily="Arial Rounded MT Bold" FontSize="14" Visibility="Visible" MouseLeftButtonDown="FixBtnClick">FIXED!</Label>
+						<Rectangle Fill="#FFDAFFCC" Width="100" Height="40" RadiusX="20" RadiusY="20" VerticalAlignment="Center" Stroke="#FF71CF4C" StrokeThickness="1" MouseLeftButtonDown="FixBtnClick"/>
+						<Ellipse Fill="#FF68CF4C" Height="30" Width="30" VerticalAlignment="Center" MouseLeftButtonDown="FixBtnClick" Margin="0,0,55,0"/>
+						<Label HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Arial Rounded MT Bold" FontSize="14" Visibility="Visible" MouseLeftButtonDown="FixBtnClick" Margin="30,0,0,0">FIXED!</Label>
+					</Grid>
+				</Border>
+				<Border Name="FixButton" CornerRadius="12,0,0,0" BorderThickness="0" Grid.Row="1" Grid.Column="1" Background="#FFC5C5C5" Cursor="Hand" Visibility="Visible">
+					<Grid>
+						<Rectangle Fill="#FFFFF2CC" Width="100" Height="40" RadiusX="20" RadiusY="20" VerticalAlignment="Center" Stroke="#FFCFB24C" StrokeThickness="1" MouseLeftButtonDown="FixBtnClick"/>
+						<Ellipse  Fill="#FFCFB24C" Height="30" Width="30" VerticalAlignment="Center" MouseLeftButtonDown="FixBtnClick" Margin="55,0,0,0"/>
+						<TextBlock Width="40" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-30,0,0,0" FontFamily="Arial Rounded MT Bold" FontSize="14" Visibility="Visible" MouseLeftButtonDown="FixBtnClick">Click to fix</TextBlock>
 					</Grid>
 				</Border>
 			</Grid>
 			<WrapPanel Grid.Row="1" Height="auto" HorizontalAlignment="right" x:Name="FixerTags">
 				<Button Style="{StaticResource LinkButton}" Foreground="#FF7A7A7A" Content="#Tags" />
 			</WrapPanel>
-			<TextBlock x:Name="FixerDesc" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" Padding="10,6,10,6" FontSize="15"><Run Text="This is test text. It has to be a bit long to get a sense for how this would look in practice. Not sure how long, but at least as lengthy as my normal rants about these things. It's anyone's guess what that actually means though... I kind of make it up as I go. What happens if I make it even bigger though? Cool. It expands :)"/><LineBreak/><Run/></TextBlock>
+			<TextBlock x:Name="FixerDesc" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" Padding="10,6,10,6" FontSize="15" ><Run Text="This is test text. It has to be a bit long to get a sense for how this would look in practice. Not sure how long, but at least as lengthy as my normal rants about these things. It's anyone's guess what that actually means though... I kind of make it up as I go. What happens if I make it even bigger though? Cool. It expands :)"/><LineBreak/><Run/></TextBlock>
 		</Grid>
 	</Border>
 </UserControl>
