@@ -99,6 +99,7 @@ namespace Paneless.Helpers
 			if (which == "NumLBoot") return NumLockOnBootOn();
 			if (which == "MenuAll") return FullRightClickMenu();
 			if (which == "StartWebSearch") return StartWebSearchOff();
+			if (which == "LidNoSleep") return LidIsSleepy();
 			// Just in case, return false
 			return false;
 		}
@@ -118,7 +119,9 @@ namespace Paneless.Helpers
 			if (which == "NumLBoot") NumLockOnBootEnable();
 			if (which == "MenuAll") EnableFullRightClickMenu();
 			if (which == "StartWebSearch") StartWebSearchDisable();
+			if (which == "LidNoSleep") LaptopCaffine();
 		}
+
 
 		public void BreakIt(string which)
 		{
@@ -135,8 +138,11 @@ namespace Paneless.Helpers
 			if (which == "NumLBoot") NumLockOnBootDisable();
 			if (which == "MenuAll") DisableFullRightClickMenu();
 			if (which == "StartWebSearch") StartWebSearchEnable();
+			if (which == "LidNoSleep") LaptopNarcolepsy();
 
 		}
+
+
 
 		// Safe delete of trees to prevent annoying and unnecessary error messages
 		public static void DelTree(RegistryHive registryHive, string fullPathKeyToDelete)
@@ -682,7 +688,97 @@ namespace Paneless.Helpers
 			}
 		}
 
+		private bool LidIsSleepy()
+		{
 
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\381b4222-f694-41f0-9685-ff5bb260df2e\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936"))
+				{
+					if (explore != null && GetValueInt(explore, "ACSettingIndex") != 0) return false;
+					if (explore != null && GetValueInt(explore, "DCSettingIndex") != 0) return false;
+				}
+				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\a1841308-3541-4fab-bc81-f71556f20b4a\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936"))
+				{
+					if (explore != null && GetValueInt(explore, "ACSettingIndex") != 0) return false;
+					if (explore != null && GetValueInt(explore, "DCSettingIndex") != 0) return false;
+				}
+				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936"))
+				{
+					if (explore != null && GetValueInt(explore, "ACSettingIndex") != 0) return false;
+					if (explore != null && GetValueInt(explore, "DCSettingIndex") != 0) return false;
+				}
+				return true;
+			}
+			// Auto blanace
+			//Computer\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\381b4222-f694-41f0-9685-ff5bb260df2e\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936
+			// High performance
+			//Computer\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936
+			// power saver
+			// Computer\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\a1841308-3541-4fab-bc81-f71556f20b4a\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936
+		}
+
+		private void LaptopNarcolepsy()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\381b4222-f694-41f0-9685-ff5bb260df2e\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				{
+					if (explore != null)
+					{
+						explore.SetValue("ACSettingIndex", 1);
+						explore.SetValue("DCSettingIndex", 1);
+					}
+				}
+				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\a1841308-3541-4fab-bc81-f71556f20b4a\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				{
+					if (explore != null)
+					{
+						explore.SetValue("ACSettingIndex", 1);
+						explore.SetValue("DCSettingIndex", 1);
+					}
+				}
+				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				{
+					if (explore != null)
+					{
+						explore.SetValue("ACSettingIndex", 1);
+						explore.SetValue("DCSettingIndex", 1);
+					}
+				}
+			}
+		}
+
+		private void LaptopCaffine()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\381b4222-f694-41f0-9685-ff5bb260df2e\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				{
+					if (explore != null)
+					{
+						explore.SetValue("ACSettingIndex", 0);
+						explore.SetValue("DCSettingIndex", 0);
+					}
+				}
+				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\a1841308-3541-4fab-bc81-f71556f20b4a\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				{
+					if (explore != null)
+					{
+						explore.SetValue("ACSettingIndex", 0);
+						explore.SetValue("DCSettingIndex", 0);
+					}
+				}
+				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				{
+					if (explore != null)
+					{
+						explore.SetValue("ACSettingIndex", 0);
+						explore.SetValue("DCSettingIndex", 0);
+					}
+				}
+			}
+		}
 
 
 

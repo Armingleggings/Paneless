@@ -16,6 +16,7 @@
     <None Remove="Graphics\groupby.png" />
     <None Remove="Graphics\hibernate.png" />
     <None Remove="Graphics\hidden_files.png" />
+    <None Remove="Graphics\lid_sleep.png" />
     <None Remove="Graphics\logo.png" />
     <None Remove="Graphics\num_lock_off.png" />
     <None Remove="Graphics\num_lock_on.png" />
@@ -49,6 +50,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Graphics\hidden_files.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\lid_sleep.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Graphics\logo.png">

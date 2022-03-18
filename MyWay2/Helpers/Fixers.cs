@@ -250,6 +250,21 @@ namespace Paneless.Helpers
 					",
 				["Activation_message"] = @"Turn off Web in the Start Menu - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
 				["Tags"] = "#Start Menu, #Internet, #Feature Bleed"
+			},			
+			["LidNoSleep"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "LidGoNightNight",
+				["Img"] = @"/graphics/lid_sleep.png",
+				["Title"] = @"Don't sleep when closing the lid",
+				["Snark"] = @"
+					ONLY APPLIES TO LAPTOPS. There are lots of reasons to close a laptop lid - getting up to get coffee without leaving an open invitation to cat-typed nonsense. Carrying it to another room, 
+					shutting off the screen to save power while you take a quick call. Bottom line, if the narcoleptic little bugger fell asleep when you were only going to open the screen and get right back to work,
+					it's a huge pain in the butt. Click this fix to let the computer turn off the screen, but not actually fall asleep just because you closed the lid.
+					",				
+				["Description"] = @"
+					ONLY APPLIES TO LAPTOPS. Many laptops put the computer to sleep simply because you closed the lid. This prevents that.
+					",
+				["Tags"] = "#Laptops, #Power, #Sleep"
 			},
 		};
 
