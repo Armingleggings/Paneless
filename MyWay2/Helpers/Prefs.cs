@@ -10,7 +10,10 @@ namespace Paneless.Helpers
 {
 	class Prefs
 	{
+		// Stores users selectsions for fixes
 		Dictionary<string,string> userPrefs = new Dictionary<string, string>();
+		// Stores settings for the tool itself
+		Dictionary<string,string> options = new Dictionary<string, string>();
 		public string settingsPath { get; } = "";
 		public string settingsFile { get; } = "";
 		public string settingsFullPath { get; } = "";
@@ -40,6 +43,12 @@ namespace Paneless.Helpers
 						temp = aPref.Split("=");
 						userPrefs[temp[0]] = temp[1];
 					}
+					// The pattern we use for config options
+					if (Regex.IsMatch(aPref, @"[A-Za-z]{6,80}=(on|off)", RegexOptions.IgnoreCase))
+					{
+						temp = aPref.Split("=");
+						options[temp[0]] = temp[1];
+					}
 				}
 			}
 		}
@@ -50,6 +59,10 @@ namespace Paneless.Helpers
 			Directory.CreateDirectory(settingsPath);
 			List<string> lines = new List<string>();
 			foreach (KeyValuePair<string,string> pref in userPrefs)
+			{
+				lines.Add(pref.Key + "=" + pref.Value);
+			}
+			foreach (KeyValuePair<string,string> pref in options)
 			{
 				lines.Add(pref.Key + "=" + pref.Value);
 			}
@@ -92,5 +105,20 @@ namespace Paneless.Helpers
 			else
 				userPrefs.Add(key, value);
 		}
+		public string GetOption(string name)
+		{
+			string pref = "";
+			if (userPrefs.TryGetValue(name, out pref))
+				return pref;
+			return "";
+		}
+
+		public void SetOption(string key, string value)
+		{
+			if (userPrefs.ContainsKey(key))
+				userPrefs[key] = value;
+			else
+				userPrefs.Add(key, value);
+		}	
 	}
 }

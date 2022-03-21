@@ -71,7 +71,7 @@ namespace Paneless
 		}
 
 		// Given a saved pref and a current test state, does the test state match that saved value
-		// If delta, adds a tag otherwise removes
+		// If delta, adds a tag otherwise removes (NO DON"T REMOVE - WE NEED IT TO STAY FOR THE LOAD PREFS THING)
 		public void DeltaCheck(string savedPref, string testState)
 		{
 			// If our current state doesn't match the pref file

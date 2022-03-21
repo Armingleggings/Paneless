@@ -52,7 +52,7 @@ namespace Paneless
 			{
 				status.Replace("#RestartWinExplorer", "");
 				btn = new Button();
-				btn.Content = "(Click here to retstart Windows Explorer now)";
+				btn.Content = "(Click here to restart Windows Explorer now)";
 				btn.Style = FindResource("LinkButton") as Style;
 				btn.Foreground = new SolidColorBrush(Color.FromRgb(198, 00, 40));
 				btn.Margin = new Thickness(4, 4, 4, 4);
@@ -145,6 +145,7 @@ namespace Paneless
 				fixers.FixIt(whichFix.Name);
 				fixerBoxes[whichFix.Name].ClearDelta();
 			}
+
 
 			// Cheap way of saying, it's not blank
 			string message;
@@ -249,14 +250,46 @@ namespace Paneless
 			TagFilter();
 		}
 
+		private void DeltasToMatch()
+		{
+			try
+			{
+				foreach (var aBox in fixerBoxes)
+				{
+					FixerBox aFix = aBox.Value;
+					if (aFix.DeltaFlag == true)
+					{
+						MatchAllButton.Visibility = Visibility.Visible;
+						return;
+					}
+				}
+				MatchAllButton.Visibility = Visibility.Collapsed;
+			}
+			catch(Exception ex)
+			{
+			}
+		}
+
+		// Used to remove any preffilemismatch tags and reset the "cancel" button when all detals are resolved either with match prefs or save prefs buttons
+		// Used with the cancel button, but also any other function that resolves all deltas at once (like MatchPrefs)
+		private void DeltasResolved()
+		{
+			// In case we were in the middle of a load of new prefs, the load is complete once we match so toggle the buttons
+			LoadPrefButton.Visibility = Visibility.Visible;
+			CancelPrefButton.Visibility = Visibility.Collapsed;
+			MatchAllButton.Visibility = Visibility.Collapsed;
+			foreach (var aBox in fixerBoxes)
+			{
+				FixerBox aFix = aBox.Value;
+				aFix.ClearDelta();
+			}
+		}
+
 		// Takes all current fixes and makes a new prefs file from it
 		private void MatchPrefs(object sender, RoutedEventArgs e)
 		{
 			ClearStatus();
-
-			// In case we were in the middle of a load of new prefs, the load is complete once we match so toggle the buttons
-			LoadPrefButton.Visibility = Visibility.Visible;
-			CancelPrefButton.Visibility = Visibility.Collapsed;
+			DeltasResolved();
 
 			// Collect activation messages
 			List<string> messages = new List<string>();
@@ -270,7 +303,6 @@ namespace Paneless
 				{
 					// trigger a click;
 					FixClick(aFix, null);
-					aFix.ClearDelta();
 					// Cheap way of saying, it's not blank
 					if (fixers.GetFix(aBox.Key).TryGetValue("Activation_message",out message) == true && (message.Length > 3))
 						messages.Add(message);
@@ -283,7 +315,7 @@ namespace Paneless
 		}
 		
 		// Loads prefs and applies (or removes) any delta tags
-		private void DeltaCheckAll()
+		private void DeltaLoadAndCheck()
 		{
 			prefs.LoadPrefs();
 			var fixNames = fixers.FixerNames();
@@ -292,6 +324,8 @@ namespace Paneless
 				var temp = fixers.GetFix(key);
 				fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "yes");
 			}
+			// if any deltas are active, toggle the match button. Otherwise, turn it off
+			DeltasToMatch();
 		}
 
 		// Loads a user-custom prefs file with various settings. Good for "Win11 suite" or "Explorer only" customizations.
@@ -326,7 +360,7 @@ namespace Paneless
 				LoadPrefButton.Visibility = Visibility.Collapsed;
 				CancelPrefButton.Visibility = Visibility.Visible;
 
-				DeltaCheckAll();
+				DeltaLoadAndCheck();
 
 				ShowStatus("Loaded. Click CANCEL to return to your previous prefs or MATCH PREFS FILE to apply the changes");
 			}
@@ -347,7 +381,10 @@ namespace Paneless
 			if (File.Exists(prefs.settingsPath + "\\prefs.bak.txt"))
 				File.Copy(prefs.settingsPath+"\\prefs.bak.txt",prefs.settingsFullPath);
 
-			DeltaCheckAll();
+			// Make sure the prefs in memory match the restored file
+			DeltasResolved();
+			// Load the prefs file and look for any latent mismatches
+			DeltaLoadAndCheck();
 		}
 
 		private void ClearFilter(object sender, RoutedEventArgs e)
@@ -364,7 +401,7 @@ namespace Paneless
 			TagFilter();
 		}
 		
-		// Looks through the fixers and matches our prefs to whatever we see (used for saving and for first-load backup)
+		// Looks through the fixers and matches our prefs dictionary to whatever we see (used for saving and for first-load backup)
 		private void ScrapePrefs()
 		{
 			var fixNames = fixers.FixerNames();
@@ -397,6 +434,7 @@ namespace Paneless
 		{
 			ScrapePrefs();
 			prefs.SavePrefs();
+			DeltasResolved();
 			ShowStatus("All current fix settings saved to prefs file.");
 		}
 
@@ -497,7 +535,8 @@ namespace Paneless
 						fixerBoxes["NumL"].FixerImg.Source = new BitmapImage(new Uri(@"/graphics/num_lock_off.png", UriKind.Relative));
 					});
 				}
-			//DeltaCheckAll();
+			// If we have delta's show the button to fix them
+			DeltasToMatch();
 		}
 
 		// Loads fixers into the window. Determines their status and whether they are matched to the prefs
