@@ -29,14 +29,18 @@ namespace Paneless
 		public bool DeltaFlag { get; set; } = false;
 
 		public bool IsFixed { get; set; } = false;
+		// Not in the XAML, but we need it
+		public string PrefName { get; set; } = "";
 	
 		public FixerBox(Dictionary<string,string> deets)
 		{
 			InitializeComponent();
 			btnOff();
 			this.Name = deets["Name"];
+			this.PrefName = deets["PrefName"];
 			this.FixerTitle.Text = deets["Title"];
-			this.FixerDesc.Text = deets["Snark"];
+			// This is set later depending on snarklevel
+			this.FixerDesc.Text = "";
 			var temp = deets["Tags"].Split(',');
 			Button btn = null;
 			// remove placeholder
@@ -70,19 +74,24 @@ namespace Paneless
 			FixedButton.Visibility = Visibility.Hidden;
 		}
 
-		// Given a saved pref and a current test state, does the test state match that saved value
+		// Given a prefs array where the key is this fix's name, compare the "isfixed" versus the pref and show mismatch if there is one
 		// If delta, adds a tag otherwise removes (NO DON"T REMOVE - WE NEED IT TO STAY FOR THE LOAD PREFS THING)
-		public void DeltaCheck(string savedPref, string testState)
+		public void DeltaCheck(Dictionary<string,string> prefs)
 		{
+			// If we set it already, don't bother again (save cycles)
+			if (DeltaFlag) return;
+			// Sometimes we don't have a preference. If it's empty, we don't care and shouldn't mark it
+			if (!prefs.ContainsKey(PrefName)) return;
+
 			// If our current state doesn't match the pref file
-			if (savedPref != "" && savedPref != testState && !DeltaFlag)
+			if (prefs[PrefName] != (IsFixed?"yes":"no"))
 			{
 				PrefAlertBtn = new Button();
 				PrefAlertBtn.Content = "#PrefFileMismatch";
 				PrefAlertBtn.Name = "mismatchTag";
 				PrefAlertBtn.Style = FindResource("LinkButton") as Style;
 				PrefAlertBtn.Foreground = new SolidColorBrush(Color.FromRgb(153, 0, 0));
-				PrefAlertBtn.Click += this.TagClick;
+				PrefAlertBtn.Click += TagClick;
 				FixerTags.Children.Add(PrefAlertBtn);
 				DeltaFlag = true;
 			}
@@ -95,16 +104,10 @@ namespace Paneless
 			FixerTags.Children.Remove(PrefAlertBtn);
 		}
 
-		private async void FixBtnClick(object sender, RoutedEventArgs e)
+		private void FixBtnClick(object sender, RoutedEventArgs e)
 		{
-			try
-			{
 			// Don't send what htey clicked (sender), send the entire fixerbox (which is this)
-				toggleClick?.Invoke(this, e);
-			}
-			catch(Exception ex)
-			{
-			}
+			toggleClick?.Invoke(this, e);
 		}
 
 		private void TagClick(object sender, RoutedEventArgs e)

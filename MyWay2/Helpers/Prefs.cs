@@ -17,6 +17,7 @@ namespace Paneless.Helpers
 		public string settingsPath { get; } = "";
 		public string settingsFile { get; } = "";
 		public string settingsFullPath { get; } = "";
+		public string diag = "";
 
 
 		public Prefs(string MyDocsPath)
@@ -44,11 +45,16 @@ namespace Paneless.Helpers
 						userPrefs[temp[0]] = temp[1];
 					}
 					// The pattern we use for config options
-					if (Regex.IsMatch(aPref, @"[A-Za-z]{6,80}=(on|off)", RegexOptions.IgnoreCase))
+					else if (Regex.IsMatch(aPref, @"[A-Za-z]{3,80}=(on|off)", RegexOptions.IgnoreCase))
 					{
 						temp = aPref.Split("=");
 						options[temp[0]] = temp[1];
 					}
+					else
+					{
+						options["missing"] = aPref;
+					}
+
 				}
 			}
 		}
@@ -90,6 +96,11 @@ namespace Paneless.Helpers
 			return string.Join(Environment.NewLine, userPrefs);
 		}
 
+		public Dictionary<string,string> GetUserPrefs()
+		{
+			return userPrefs;
+		}
+
 		public string GetPref(string name)
 		{
 			string pref = "";
@@ -108,17 +119,18 @@ namespace Paneless.Helpers
 		public string GetOption(string name)
 		{
 			string pref = "";
-			if (userPrefs.TryGetValue(name, out pref))
+			if (options.TryGetValue(name, out pref))
 				return pref;
 			return "";
 		}
 
 		public void SetOption(string key, string value)
 		{
-			if (userPrefs.ContainsKey(key))
-				userPrefs[key] = value;
+			if (options.ContainsKey(key))
+				options[key] = value;
 			else
-				userPrefs.Add(key, value);
+				options.Add(key, value);
 		}	
+
 	}
 }

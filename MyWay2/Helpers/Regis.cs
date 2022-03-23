@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
+using System.Windows;
 
 namespace Paneless.Helpers
 {
@@ -59,19 +60,6 @@ namespace Paneless.Helpers
 			return Convert.ToInt32(key.GetValue(val));
 		}
 
-		// Helper because apparently it won't do this on its own
-		public RegistryKey openCreate(RegistryKey baseKey, string path)
-		{
-			RegistryKey test = baseKey.OpenSubKey(path);
-
-			var reg = baseKey.OpenSubKey(path, true);
-			if (reg == null)
-			{
-				reg = baseKey.CreateSubKey(path);
-			}
-			return reg;
-		}
-
 		// Since we run as an admin, have to write a function to get the users mydocs path
 		public string MyDocsPath()
 		{
@@ -100,6 +88,8 @@ namespace Paneless.Helpers
 			if (which == "MenuAll") return FullRightClickMenu();
 			if (which == "StartWebSearch") return StartWebSearchOff();
 			if (which == "LidNoSleep") return LidIsSleepy();
+			if (which == "StartSuggestions") return StartSuggestionsIsOff();
+			if (which == "WindowsTips") return WindowsNaggingPowerOff();
 			// Just in case, return false
 			return false;
 		}
@@ -120,6 +110,8 @@ namespace Paneless.Helpers
 			if (which == "MenuAll") EnableFullRightClickMenu();
 			if (which == "StartWebSearch") StartWebSearchDisable();
 			if (which == "LidNoSleep") LaptopCaffine();
+			if (which == "StartSuggestions") SmotherStartSuggestions();
+			if (which == "WindowTips") NoIdontWantEdgeNowOrEver();
 		}
 
 
@@ -139,10 +131,10 @@ namespace Paneless.Helpers
 			if (which == "MenuAll") DisableFullRightClickMenu();
 			if (which == "StartWebSearch") StartWebSearchEnable();
 			if (which == "LidNoSleep") LaptopNarcolepsy();
+			if (which == "StartSuggestions") AllowStartSuggestions();
+			if (which == "WindowsTips") ILikeNaggingHurtMeWindows();
 
 		}
-
-
 
 		// Safe delete of trees to prevent annoying and unnecessary error messages
 		public static void DelTree(RegistryHive registryHive, string fullPathKeyToDelete)
@@ -387,12 +379,12 @@ namespace Paneless.Helpers
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
 				string bagsFolder = loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\";
-				using (RegistryKey explore = openCreate(hku, bagsFolder))
+				using (RegistryKey explore = hku.CreateSubKey(bagsFolder,true))
 				{
 					foreach (string key in explore.GetSubKeyNames())
 					{
-						var comTest = hku.OpenSubKey(bagsFolder + "\\" + key + "\\ComDlg\\" + bagKey);
-						var shellTest = hku.OpenSubKey(bagsFolder + "\\" + key + "\\Shell\\" + bagKey);
+						var comTest = hku.CreateSubKey(bagsFolder + "\\" + key + "\\ComDlg\\" + bagKey,true);
+						var shellTest = hku.CreateSubKey(bagsFolder + "\\" + key + "\\Shell\\" + bagKey,true);
 						if ((comTest != null || shellTest != null) && key != "AllFolders")
                         {
 							if (comTest != null) comTest.Close();
@@ -410,12 +402,12 @@ namespace Paneless.Helpers
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
 				string bagsFolder = loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\";
-				using (RegistryKey explore = openCreate(hku, bagsFolder))
+				using (RegistryKey explore = hku.CreateSubKey(bagsFolder,true))
 				{
 					foreach (string key in explore.GetSubKeyNames())
 					{
-						RegistryKey comTest = hku.OpenSubKey(bagsFolder + "\\" + key + "\\ComDlg\\" + bagKey);
-						RegistryKey shellTest = hku.OpenSubKey(bagsFolder + "\\" + key + "\\Shell\\" + bagKey);
+						RegistryKey comTest = hku.CreateSubKey(bagsFolder + "\\" + key + "\\ComDlg\\" + bagKey,true);
+						RegistryKey shellTest = hku.CreateSubKey(bagsFolder + "\\" + key + "\\Shell\\" + bagKey,true);
 						if ((comTest != null || shellTest != null) && key != "AllFolders")
 						{
 							RegistryKey toCheck = comTest != null ? comTest :shellTest;
@@ -462,7 +454,7 @@ namespace Paneless.Helpers
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
 				// This sets the default option so that any time explorer tries to guess at the view for downloads, it uses ours (NO group by, thumbnail mode)
-				using (RegistryKey explore = openCreate(hku, loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}"))
+				using (RegistryKey explore = hku.CreateSubKey(loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{885A186E-A440-4ADA-812B-DB871B942259}",true))
 				{
 					explore.SetValue("GroupView", 0, RegistryValueKind.DWord);
 					explore.SetValue("Mode", 1, RegistryValueKind.DWord);
@@ -501,7 +493,7 @@ namespace Paneless.Helpers
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
 				// This sets the default option so that any time explorer tries to guess at the view for downloads, it uses ours (NO group by, thumbnail mode)
-				using (RegistryKey explore = openCreate(hku, loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}"))
+				using (RegistryKey explore = hku.CreateSubKey(loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}",true))
 				{
 					explore.SetValue("GroupView", 0, RegistryValueKind.DWord);
 					explore.SetValue("Mode", 1, RegistryValueKind.DWord);
@@ -527,7 +519,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = openCreate(hku,@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\"))
+				using (RegistryKey explore = hku.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\",true))
 				{
 					explore.DeleteValue("{e2bf9676-5f8f-435c-97eb-11607a5bedf7}");
 				}
@@ -538,7 +530,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = openCreate(hku,@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\"))
+				using (RegistryKey explore = hku.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked\",true))
 				{
 					explore.SetValue("{e2bf9676-5f8f-435c-97eb-11607a5bedf7}", "");
 				}
@@ -562,7 +554,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = hku.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings", true))
+				using (RegistryKey explore = hku.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings", true))
 				{
 					explore.SetValue("ShowHibernateOption", 0);
 				}
@@ -607,7 +599,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = hku.CreateSubKey(loggedInSIDStr + @"\Control Panel\Keyboard"))
+				using (RegistryKey explore = hku.CreateSubKey(loggedInSIDStr + @"\Control Panel\Keyboard",true))
 				{
 					explore.SetValue("InitialKeyboardIndicators", "0");
 				}
@@ -618,7 +610,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = hku.CreateSubKey(loggedInSIDStr + @"\Control Panel\Keyboard"))
+				using (RegistryKey explore = hku.CreateSubKey(loggedInSIDStr + @"\Control Panel\Keyboard",true ))
 				{
 					explore.SetValue("InitialKeyboardIndicators", "2");
 				}
@@ -644,7 +636,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				RegistryKey newMenuBlocker = openCreate(hku,loggedInSIDStr + @"\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32");
+				RegistryKey newMenuBlocker = hku.CreateSubKey(loggedInSIDStr + @"\SOFTWARE\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32",true);
 				// It can't even be "(Default) "" " or "(Default) value not set". It has to be "(Default) with literally nothing in the Data area
 				newMenuBlocker.SetValue("", string.Empty, RegistryValueKind.String);
 			}
@@ -674,7 +666,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				RegistryKey subKey = openCreate(hku, loggedInSIDStr + @"\SOFTWARE\Policies\Microsoft\Windows\Explorer");
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\SOFTWARE\Policies\Microsoft\Windows\Explorer",true);
 				subKey.SetValue("DisableSearchBoxSuggestions", 1, RegistryValueKind.DWord);
 			}
 		}
@@ -683,7 +675,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				RegistryKey subKey = openCreate(hku, loggedInSIDStr + @"\SOFTWARE\Policies\Microsoft\Windows\Explorer");
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\SOFTWARE\Policies\Microsoft\Windows\Explorer",true);
 				subKey.DeleteValue("DisableSearchBoxSuggestions");
 			}
 		}
@@ -722,7 +714,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\381b4222-f694-41f0-9685-ff5bb260df2e\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				using (RegistryKey explore = hku.CreateSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\381b4222-f694-41f0-9685-ff5bb260df2e\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
 				{
 					if (explore != null)
 					{
@@ -730,7 +722,7 @@ namespace Paneless.Helpers
 						explore.SetValue("DCSettingIndex", 1);
 					}
 				}
-				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\a1841308-3541-4fab-bc81-f71556f20b4a\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				using (RegistryKey explore = hku.CreateSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\a1841308-3541-4fab-bc81-f71556f20b4a\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
 				{
 					if (explore != null)
 					{
@@ -738,7 +730,7 @@ namespace Paneless.Helpers
 						explore.SetValue("DCSettingIndex", 1);
 					}
 				}
-				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				using (RegistryKey explore = hku.CreateSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
 				{
 					if (explore != null)
 					{
@@ -753,7 +745,7 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
 			{
-				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\381b4222-f694-41f0-9685-ff5bb260df2e\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				using (RegistryKey explore = hku.CreateSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\381b4222-f694-41f0-9685-ff5bb260df2e\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
 				{
 					if (explore != null)
 					{
@@ -761,7 +753,7 @@ namespace Paneless.Helpers
 						explore.SetValue("DCSettingIndex", 0);
 					}
 				}
-				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\a1841308-3541-4fab-bc81-f71556f20b4a\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				using (RegistryKey explore = hku.CreateSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\a1841308-3541-4fab-bc81-f71556f20b4a\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
 				{
 					if (explore != null)
 					{
@@ -769,7 +761,7 @@ namespace Paneless.Helpers
 						explore.SetValue("DCSettingIndex", 0);
 					}
 				}
-				using (RegistryKey explore = hku.OpenSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
+				using (RegistryKey explore = hku.CreateSubKey(@"SYSTEM\ControlSet001\Control\Power\User\PowerSchemes\8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c\4f971e89-eebd-4455-a8de-9e59040e7347\5ca83367-6e45-459f-a27b-476b1d01c936", true))
 				{
 					if (explore != null)
 					{
@@ -781,6 +773,67 @@ namespace Paneless.Helpers
 		}
 
 
+		private bool StartSuggestionsIsOff()
+		{
+			using (var hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (var subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"))
+				{
+					// If an Eplorer policy doesn't exist, that means it's not set
+					if (subKey == null) return true;
+					return (GetValueInt(subKey,"SystemPaneSuggestionsEnabled") != 1);
+				}
+			}
+		}
+
+		private void SmotherStartSuggestions()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",true);
+				subKey.SetValue("SystemPaneSuggestionsEnabled", 0, RegistryValueKind.DWord);
+			}
+		}
+
+		private void AllowStartSuggestions()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",true);
+				subKey.SetValue("SystemPaneSuggestionsEnabled", 1, RegistryValueKind.DWord);
+			}
+		}
+
+		private bool WindowsNaggingPowerOff()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"))
+				{ 
+					// If an Eplorer policy doesn't exist, that means it's not set
+					if (subKey == null) return true;
+					return (GetValueInt(subKey,"SubscribedContent-338382Enabled") == 0);
+				}
+			}
+		}
+
+		private void NoIdontWantEdgeNowOrEver()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",true);
+				subKey.SetValue("SubscribedContent-338382Enabled", 0, RegistryValueKind.DWord);
+			}
+		}
+
+		private void ILikeNaggingHurtMeWindows()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",true);
+				subKey.SetValue("SubscribedContent-338382Enabled", 1, RegistryValueKind.DWord);
+			}
+		}
 
 
 

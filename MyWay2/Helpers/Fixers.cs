@@ -24,22 +24,36 @@ namespace Paneless.Helpers
 		// Translation array from fix shortname to various data about them
 		private Dictionary<string, Dictionary<string, string>> fixers = new Dictionary<string, Dictionary<string, string>>
 		{
-			["MenuAll"] = new Dictionary<string, string>
+			["StartSuggestions"] = new Dictionary<string, string>
 			{
-				["PrefName"] = "ShowALLRightClickOptions",
-				["Img"] = @"/graphics/right_click_menu.png",
-				["Title"] = @"Show ALL OPTIONS on right-click",
+				["PrefName"] = "NoOneAskedYouStartMenu",
+				["Img"] = @"/graphics/start_suggestions.png",
+				["Title"] = @"Offer app suggestions in Start Menu",
 				["Snark"] = @"
-					Windows 11 is trying to dumb down the controls which isn't actually that terrible of a thing. The issue is if you know what you're doing, what you're looking for, and the thing you're looking for
-					didn't make the cut meaning two clicks before become three now. This disables the easy mode feature and restores pre-windows 11 right-click
-					",
+					Are suggestions useful? That depends on who's making them and why. Do you trust Microsoft to make suggestions that are in your best interests? Ones that are are 
+					legitimately designed to improve your workflow and are a good value? Lol. Click this fix to tell Microsoft to mind their own business.
+					",				
 				["Description"] = @"
-					Windows 11 uses a simplified right-click menu with a few new features, but makes it harder if you prefer the full menu or have custom context options.
-					Click ""FIX"" to restore the pre-Windows 11 right-click menu in Windows Eplorer.
+					Sometimes you'll see suggested apps and services in the Start Menu. To disable that, click this fix.
 					",
-				["Activation_message"] = @"Show Right Click Menu - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
-				["Tags"] = "#Hidden Controls, #Windows Explorer, #Windows 11"
+				["Tags"] = "#Start Menu, #Ads, #Suggestions, #Adblock"
 			},
+			["WindowsTips"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "NoIDontWantEdge",
+				["Img"] = @"/graphics/windows_tips.png",
+				["Title"] = @"Offer tips and suggestions for Windows",
+				["Snark"] = @"
+					Sometimes you're minding your business and up pops and notification that ""helpfully"" tells you, ""you could do this with Edge instead!"" or something similar. 
+					Technically, this feature provides other tips besides USE MOAR EDGE!?!?!?!, but maybe it's worth throwing the bathwater out with the turd. To prevent MS from nagging you constantly 
+					to use their products when you dare to open Chrome or some other superior browser, click this fix.
+					",				
+				["Description"] = @"
+					Windows will sometimes notice what you're doing and provide ""tips"" for how to do it better. Sometimes those tips are to use Microsoft options instead which 
+					is not as helpful. To disable this feature (all tips, not just the MS advertising ones), click this fix.
+					",
+				["Tags"] = "#Windows, #Ads, #Suggestions, #Adblock"
+			},	
 			["F1"] = new Dictionary<string,string> {
 				["PrefName"] = "KillF1UnhelpfulHelp",
 				["Img"] = @"/graphics/F1key.png",
@@ -62,8 +76,8 @@ namespace Paneless.Helpers
 				["Img"] = @"/graphics/CMD.png",
 				["Title"] = @"Restore ""Open Admin CMD Window Here"" to Windows Explorer",
 				["Snark"] = @"
-					Maybe you never need to point to any given folder and drop into a command window with ULTIMATE POWA! but I do. Not only have recent versions of Windows
-					removed the option to ""open CMD here"" through right-click context menus, you only get normal level anyway making it REALLY painful to open an elevated CMD and then
+					Maybe you never need to point to any given folder and drop into a command window with ULTIMATE POWA! but I do. Not only have recent versions of Windows 
+					removed the option to ""open CMD here"" through right-click context menus, you only get normal level anyway making it REALLY painful to open an elevated CMD and then 
 					have to manually navigate like it was still the 90's. No thanks.
 					",
 				["Description"] = @"
@@ -83,7 +97,7 @@ namespace Paneless.Helpers
 					the program will copter-parent the key and make sure it stays active every time it tries to slack off.
 					",
 				["Description"] = @"
-					I've heard legend of people who prefer their number pad not to be numbers, but I'm convinced it's a myth. If you want to force Num Lock on for as long
+					I've heard legend of people who prefer their number pad not to be numbers, but I'm convinced it's a myth. If you want to force Num Lock on for as long 
 					as this program is open, click this fix (Paneless will keep watching and smack Num-Lock back into shape if it tries to turn off - or if you hit it accidentally)
 					",
 				["Tags"] = "#Keyboard,#Rage,#NumLock,#WhyDoWeEvenHAVEThatLever"
@@ -113,7 +127,7 @@ namespace Paneless.Helpers
 					directory tree. How the hell are you supposed to navigate when most stuff is hidden?
 					",
 				["Description"] = @"
-					Modern versions of Windows only show the folders you've touched this session in the left navigation pane which makes it easier for some people to keep sense of their work session.
+					Modern versions of Windows only show the folders you've touched this session in the left navigation pane which makes it easier for some people to keep sense of their work session. 
 					For people who have trouble keeping track of how files and folders are arranged when some are left hidden, this fix makes them all visible all the time. You'll have to scroll a bit more, 
 					but at least you can see everything.
 					",
@@ -130,7 +144,7 @@ namespace Paneless.Helpers
 					without us noticing) and the icon changes? Now there's no way to know what the hell it is. Extensions on ALWAYS. Let us see what the file actually IS!
 					",				
 				["Description"] = @"
-					On the assumption that file exensions is overly confusing for the average user, Windows hides them by default. This may have very little
+					On the assumption that file exensions is overly confusing for the average user, Windows hides them by default. This may have very little 
 					effect for people who don't care and never need to change a file extension, but it's quite a bother for people who do. Click this fix to show all file extensions.
 				",
 				["Activation_message"] = @"Show File Extensions - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
@@ -178,7 +192,7 @@ namespace Paneless.Helpers
 				["Title"] = @"Kill the ""Group By"" view for search",
 				["Snark"] = @"
 					I guess someone at Microsoft assumed that people wanted search results binned into groups by date for some reason. Not sure what they were smoking, 
-					but all it does it complicate the view and make it impossible to find things. Woo! Let's hide most of the results by showing the most recent 3 or 4
+					but all it does it complicate the view and make it impossible to find things. Woo! Let's hide most of the results by showing the most recent 3 or 4 
 					and hiding the rest! Sensible, right? SMH... This removes ""Group By"" default settings for search it doesn't override your preferred view.
 					",
 				["Description"] = @"
@@ -194,7 +208,7 @@ namespace Paneless.Helpers
 				["Img"] = @"/graphics/groupby.png",
 				["Title"] = @"Kill the ""Group By"" view for Downloads folders",
 				["Snark"] = @"
-					No matter what you do, no matter what dark god you sacrifice to, Windows will NOT allow you to view Downloads in a sensible way.
+					No matter what you do, no matter what dark god you sacrifice to, Windows will NOT allow you to view Downloads in a sensible way. 
 					You can change settings and try every hack you know and STILL Downloads will force you to hunt for files in the ridiculous ""Group By"" format. 
 					Is it here? Is it in another group? Who knows? Spend hours of frustrating time playing hide-and-seek with your files... or click on this fix to stop this nonsense for good!
 					",
@@ -210,7 +224,7 @@ namespace Paneless.Helpers
 				["Img"] = @"/graphics/explore_ribbon.png",
 				["Title"] = @"Restore the Win Explorer Ribbon (Win 11)",
 				["Snark"] = @"
-					The Ribbon was a masterfull mix of function and design - so of course Microsoft removes it in Windows 11 without any clear/easy way to bring it back.
+					The Ribbon was a masterfull mix of function and design - so of course Microsoft removes it in Windows 11 without any clear/easy way to bring it back. 
 					Well, some of us want to actually SEE more than 5 controls in our file explorer so this will bring back what they shouldn't have removed in the first place!
 					",
 				["Description"] = @"
@@ -220,18 +234,34 @@ namespace Paneless.Helpers
 				["Activation_message"] = @"Windows Explorer Ribbon - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
 				["Tags"] = "#Windows Explorer,#Hidden Controls,#Downgrade,#Windows 11"
 			},
+			["MenuAll"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "ShowALLRightClickOptions",
+				["Img"] = @"/graphics/right_click_menu.png",
+				["Title"] = @"Show ALL OPTIONS on right-click",
+				["Snark"] = @"
+					Windows 11 is trying to dumb down the controls which isn't actually that terrible of a thing. The issue is if you know what you're doing, what you're looking for, and the thing you're looking for 
+					didn't make the cut meaning two clicks before become three now. This disables the easy mode feature and restores pre-windows 11 right-click
+					",
+				["Description"] = @"
+					Windows 11 uses a simplified right-click menu with a few new features, but makes it harder if you prefer the full menu or have custom context options.
+					Click ""FIX"" to restore the pre-Windows 11 right-click menu in Windows Eplorer.
+					",
+				["Activation_message"] = @"Show Right Click Menu - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+				["Tags"] = "#Hidden Controls, #Windows Explorer, #Windows 11"
+			},
 			["Hibernate"] = new Dictionary<string, string>
 			{
 				["PrefName"] = "ShowHibernateOptionAlways",
 				["Img"] = @"/graphics/hibernate.png",
 				["Title"] = @"Show Hibernate option on Shutdown",
 				["Snark"] = @"
-					Hibernate stores your computer state and shuts down completely - perfect for computers you don't use every day, or to save power, or when traveling, etc.... so why in the bacon-baked hell isn't it ALWAYS visible as an option!?
+					Hibernate stores your computer state and shuts down completely - perfect for computers you don't use every day, or to save power, or when traveling, etc.... so why in the bacon-baked hell isn't it ALWAYS visible as an option!? 
 					This control restore Hibernate to the list of shutdown options LIKE IT SHOULD BE.
 					",
 				["Description"] = @"
 					For low power modes, sleep has many drawbacks. The coputer is easily awoken, still uses power (which keeps accessories like cooling fans running and drains the battery), 
-					and is vulnerable to data loss if power is lost. Hibernate stores your computer state and shuts down completely. It's a great feature, but is hidden by default.
+					and is vulnerable to data loss if power is lost. Hibernate stores your computer state and shuts down completely. It's a great feature, but is hidden by default. 
 					Click this fix to have it listed along with your other power options.
 					",
 				["Tags"] = "#Hidden Controls, #Hibernate, #Power, #Start Menu"
@@ -242,7 +272,7 @@ namespace Paneless.Helpers
 				["Img"] = @"/graphics/start_web_search.png",
 				["Title"] = @"Disable web results in Start Menu",
 				["Snark"] = @"
-					It's curious isn't it? Who would have ever thought that while we're looking for commands, programs, files on our computer, we want to see result FROM THE WEB!?
+					It's curious isn't it? Who would have ever thought that while we're looking for commands, programs, files on our computer, we want to see result FROM THE WEB!? 
 					Click to disable this asinine behavior and end the timewasting distraction of web results where they don't belong.
 					",				
 				["Description"] = @"
@@ -258,14 +288,14 @@ namespace Paneless.Helpers
 				["Title"] = @"Don't sleep when closing the lid",
 				["Snark"] = @"
 					ONLY APPLIES TO LAPTOPS. There are lots of reasons to close a laptop lid - getting up to get coffee without leaving an open invitation to cat-typed nonsense. Carrying it to another room, 
-					shutting off the screen to save power while you take a quick call. Bottom line, if the narcoleptic little bugger fell asleep when you were only going to open the screen and get right back to work,
+					shutting off the screen to save power while you take a quick call. Bottom line, if the narcoleptic little bugger fell asleep when you were only going to open the screen and get right back to work, 
 					it's a huge pain in the butt. Click this fix to let the computer turn off the screen, but not actually fall asleep just because you closed the lid.
 					",				
 				["Description"] = @"
 					ONLY APPLIES TO LAPTOPS. Many laptops put the computer to sleep simply because you closed the lid. This prevents that.
 					",
 				["Tags"] = "#Laptops, #Power, #Sleep"
-			},
+			},		
 		};
 
 		// remove cortana

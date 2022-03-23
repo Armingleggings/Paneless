@@ -183,6 +183,14 @@
 							</Style>
 						</Button.Resources>
 					</Button>
+					<Button  Name="DiagButton" Visibility="Collapsed" Margin="3" Content="Diag" Background="#FFDADADA" VerticalAlignment="Stretch" BorderBrush="#FFB4B4B4" BorderThickness="1" Click="DiagSomething" FontWeight="Normal" FontFamily="Arial Rounded MT Bold">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="4"/>
+								<Setter Property="ToolTip" Value="Button trigger to test things for diagnostic purposes. You shouldn't see this." />
+							</Style>
+						</Button.Resources>
+					</Button>
 					
 				</UniformGrid>
 

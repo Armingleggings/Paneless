@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Windows.Navigation;
 using System.Windows.Media.Animation;
+using System.Threading;
 
 namespace Paneless
 {
@@ -27,6 +28,12 @@ namespace Paneless
 		private Prefs prefs = null;
 		// Holds onto tags for filtering - hashset is like an array, but the values are unique apparently so adding the same one does nothing (behavior that helps for what we're doing)
 		private HashSet<string> tags = new HashSet<string>();
+
+		private Mutex locker = new Mutex();
+
+		// Make true for logging
+		private bool diag = true;
+		private StreamWriter logger = null;
 
 		// For numlock
 		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
@@ -159,7 +166,6 @@ namespace Paneless
 		private void TagFilter()
 		{
 			bool isFilter = false;
-			bool isTags = false;
 
 			// Everything that does tags ends up here so use this function to operate the tag messages
 			if (ActiveTags.Children.Count == 0)
@@ -169,7 +175,6 @@ namespace Paneless
 			}
 			else
 			{
-				isTags = true;
 				TagGuideNone.Visibility = Visibility.Collapsed;
 				TagGuideSome.Visibility = Visibility.Visible;
 			}
@@ -250,24 +255,24 @@ namespace Paneless
 			TagFilter();
 		}
 
-		private void DeltasToMatch()
+		private void IfDeltasShowMatchButton()
 		{
-			try
+			locker.WaitOne();
+			// Can't remember why I need in invoke thing, but it's necessary to prevent an error about threads and ownership or some nonsense.
+			this.Dispatcher.Invoke(() =>
 			{
+				MatchAllButton.Visibility = Visibility.Collapsed;
 				foreach (var aBox in fixerBoxes)
 				{
 					FixerBox aFix = aBox.Value;
 					if (aFix.DeltaFlag == true)
 					{
 						MatchAllButton.Visibility = Visibility.Visible;
-						return;
+						break;
 					}
 				}
-				MatchAllButton.Visibility = Visibility.Collapsed;
-			}
-			catch(Exception ex)
-			{
-			}
+			});
+			locker.ReleaseMutex();
 		}
 
 		// Used to remove any preffilemismatch tags and reset the "cancel" button when all detals are resolved either with match prefs or save prefs buttons
@@ -283,12 +288,24 @@ namespace Paneless
 				FixerBox aFix = aBox.Value;
 				aFix.ClearDelta();
 			}
+			// Check for and remove a preffilemismatch tag from the filter if it's there
+			foreach (Button tag in ActiveTags.Children)
+			{
+				Log("looking at tag" + tag.Name);
+				if (tag.Name == "mismatchTag")
+				{
+					Log("removing tag" + tag.Name);
+					RemoveTag(tag,null);
+					break;
+				}
+			}
 		}
 
 		// Takes all current fixes and makes a new prefs file from it
 		private void MatchPrefs(object sender, RoutedEventArgs e)
 		{
 			ClearStatus();
+			// Match prefs will handle deltas
 			DeltasResolved();
 
 			// Collect activation messages
@@ -314,6 +331,7 @@ namespace Paneless
 			MultiStatus(messages);
 		}
 		
+
 		// Loads prefs and applies (or removes) any delta tags
 		private void DeltaLoadAndCheck()
 		{
@@ -321,16 +339,19 @@ namespace Paneless
 			var fixNames = fixers.FixerNames();
 			foreach (string key in fixNames)
 			{
+				// Have to get the fix information 
 				var temp = fixers.GetFix(key);
-				fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "yes");
+				fixerBoxes[key].DeltaCheck(prefs.GetUserPrefs());
 			}
 			// if any deltas are active, toggle the match button. Otherwise, turn it off
-			DeltasToMatch();
+			IfDeltasShowMatchButton();
 		}
 
 		// Loads a user-custom prefs file with various settings. Good for "Win11 suite" or "Explorer only" customizations.
 		private void LoadPrefs(object sender, RoutedEventArgs e)
 		{
+			locker.WaitOne();
+
 			ClearStatus();
 
 			// Create OpenFileDialog
@@ -343,31 +364,35 @@ namespace Paneless
 				if (openFileDlg.FileName == prefs.settingsFullPath)
 				{
 					ShowStatus("Load prefs is for opening custom and alternate prefs files, not the default PREFS.TXT file. ");
-					return;
 				}
-
-				// Copy commands can't overwrite so have ot start out by deleting.
-				if (File.Exists(prefs.settingsPath + "\\prefs.bak.txt"))
-					File.Delete(prefs.settingsPath + "\\prefs.bak.txt");
-
-				// Assuming a prefs file is there...
-				if (File.Exists(prefs.settingsFullPath))
+				else
 				{
-					File.Copy(prefs.settingsFullPath, prefs.settingsPath + "\\prefs.bak.txt");
-					File.Delete(prefs.settingsFullPath);
+					// Copy commands can't overwrite so have ot start out by deleting.
+					if (File.Exists(prefs.settingsPath + "\\prefs.bak.txt"))
+						File.Delete(prefs.settingsPath + "\\prefs.bak.txt");
+
+					// Assuming a prefs file is there...
+					if (File.Exists(prefs.settingsFullPath))
+					{
+						File.Copy(prefs.settingsFullPath, prefs.settingsPath + "\\prefs.bak.txt");
+						File.Delete(prefs.settingsFullPath);
+					}
+					File.Copy(openFileDlg.FileName, prefs.settingsFullPath);
+					LoadPrefButton.Visibility = Visibility.Collapsed;
+					CancelPrefButton.Visibility = Visibility.Visible;
+
+					DeltaLoadAndCheck();
+
+					ShowStatus("Loaded. Click CANCEL to return to your previous prefs or MATCH PREFS FILE to apply the changes");
 				}
-				File.Copy(openFileDlg.FileName, prefs.settingsFullPath);
-				LoadPrefButton.Visibility = Visibility.Collapsed;
-				CancelPrefButton.Visibility = Visibility.Visible;
 
-				DeltaLoadAndCheck();
-
-				ShowStatus("Loaded. Click CANCEL to return to your previous prefs or MATCH PREFS FILE to apply the changes");
 			}
 			else
 				ShowStatus("File could not be loaded!");
+			locker.ReleaseMutex();
 		}
 
+		// This cancels a "load prefs" option restoring the original file and putting the interface back 
 		private void CancelPrefs(object sender, RoutedEventArgs e)
 		{
 			ClearStatus();
@@ -418,6 +443,8 @@ namespace Paneless
 		private void FullSnark(object sender, RoutedEventArgs e)
 		{
 			ShowStatus("Let's face it: Microsoft decisions for some controls are just bone-headed. No need to pull punches, right?");
+			prefs.SetOption("snark", "on");
+			prefs.SavePrefs();
 			foreach (var aBox in fixerBoxes)
 				aBox.Value.FixerDesc.Text = fixers.GetFix(aBox.Key)["Snark"];
 		}
@@ -425,6 +452,8 @@ namespace Paneless
 		private void NoSnark(object sender, RoutedEventArgs e)
 		{
 			ShowStatus("Minimal snark descriptions activated.");
+			prefs.SetOption("snark", "off");
+			prefs.SavePrefs();
 			foreach (var aBox in fixerBoxes)
 				aBox.Value.FixerDesc.Text = fixers.GetFix(aBox.Key)["Description"];
 		}
@@ -447,6 +476,8 @@ namespace Paneless
 
 		private void FixVisible(object sender, RoutedEventArgs e)
 		{
+			locker.WaitOne();
+
 			ClearStatus();
 
 			// Collect activation messages
@@ -472,6 +503,8 @@ namespace Paneless
 
 				}
 			}
+			locker.ReleaseMutex();
+
 			messages.Add("Done!");
 			MultiStatus(messages);
 		}
@@ -479,6 +512,8 @@ namespace Paneless
 		// Used to check all our fixes on a pulse. If something changes in either the prefs file or the registry, this will light it up
 		public void WatchDeltas(object source, ElapsedEventArgs e)
 		{
+			locker.WaitOne();
+
 			// Grab the list of defined fixers from the fixers class.
 			var fixNames = fixers.FixerNames();
 			foreach (string key in fixNames)
@@ -489,11 +524,12 @@ namespace Paneless
 				if (fixers.IsFixed(key))
 				{
 					// if the box isn't already showing fixed, change it
+					// Can't remember why I need in invoke thing, but it's necessary to prevent an error about threads and ownership or some nonsense.
 					this.Dispatcher.Invoke(() =>
 					{
 						if (!fixerBoxes[key].IsFixed)
 							fixerBoxes[key].btnOn();
-						fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "yes");
+						fixerBoxes[key].DeltaCheck(prefs.GetUserPrefs());
 					});
 				}
 				else
@@ -503,7 +539,7 @@ namespace Paneless
 					{
 						if (fixerBoxes[key].IsFixed)
 							fixerBoxes[key].btnOff();
-						fixerBoxes[key].DeltaCheck(prefs.GetPref(temp["PrefName"]), "no");
+						fixerBoxes[key].DeltaCheck(prefs.GetUserPrefs());
 					});
 				}
 			}
@@ -536,12 +572,16 @@ namespace Paneless
 					});
 				}
 			// If we have delta's show the button to fix them
-			DeltasToMatch();
+			IfDeltasShowMatchButton();
+
+			locker.ReleaseMutex();
 		}
 
 		// Loads fixers into the window. Determines their status and whether they are matched to the prefs
 		public void AddFixers()
 		{
+			locker.WaitOne();
+
 			// Grab the list of defined fixers from the fixers class.
 			var fixNames = fixers.FixerNames();
 
@@ -568,6 +608,7 @@ namespace Paneless
 				// Image update
 				fixerBoxes[key].FixerImg.Source = new BitmapImage(new Uri(temp["Img"], UriKind.Relative));
 			}
+			locker.ReleaseMutex();
 			WatchDeltas(null, null);
 		}
 
@@ -604,6 +645,37 @@ namespace Paneless
 			}
 		}
 
+		// Just a little function I designed to be triggered on button press so I can test various things for debugging
+		private void DiagSomething(object sender, RoutedEventArgs e)
+		{
+			if (regStuff.IsFixed("WindowsTips"))
+				ShowStatus("Tips fixed");
+			else
+				ShowStatus("Tips not fixed");
+
+			if (regStuff.IsFixed("WindowsTips"))
+				{
+					// if the box isn't already showing fixed, change it
+//					this.Dispatcher.Invoke(() =>
+//					{
+						if (!fixerBoxes["WindowsTips"].IsFixed)
+							fixerBoxes["WindowsTips"].btnOn();
+						fixerBoxes["WindowsTips"].DeltaCheck(prefs.GetUserPrefs());
+//					});
+				}
+				else
+				{
+					// if the box is showing as fixed when, in reality, it isn't, change that
+//					this.Dispatcher.Invoke(() =>
+//					{
+						if (fixerBoxes["WindowsTips"].IsFixed)
+							fixerBoxes["WindowsTips"].btnOff();
+						fixerBoxes["WindowsTips"].DeltaCheck(prefs.GetUserPrefs());
+//					});
+				}
+
+		}
+
 		// If filter gains focus and doesn't have custom data in it, clear the placeholder
 		private void ClearPlaceholder(object sender, RoutedEventArgs e)
 		{
@@ -621,8 +693,16 @@ namespace Paneless
 			TagFilter();
 		}
 
+		private void Log(string toLog)
+		{
+			if (diag)
+				logger.WriteLine(toLog);
+		}
+
 		public MainWindow()
 		{
+			logger = new StreamWriter(regStuff.MyDocsPath() + @"\Paneless\log.txt");
+
 			InitializeComponent();
 			// Had to do it here because it needs this path, but we couldn't use the regstuff var in the initializers area (shrug)
 			prefs = new Prefs(regStuff.MyDocsPath());
@@ -639,18 +719,29 @@ namespace Paneless
 				prefs.BackupPrefs();
 			}
 
+			if (prefs.GetOption("snark") == "on")
+				FullSnark(null, null);
+			else
+				NoSnark(null, null);
+			// This is a dirty hack - the snark settings have status messages, but we don't want to see that on first load
+			ClearStatus();
+
 			// Start the watcher
-			Timer deltaTimer = new Timer();
+			System.Timers.Timer deltaTimer = new System.Timers.Timer();
 			// Tell the timer what to do when it elapses
 			deltaTimer.Elapsed += new ElapsedEventHandler(WatchDeltas);
-			// Set it to go off every second
-			deltaTimer.Interval = 10000;
+			// Set it to go off every few seconds
+			deltaTimer.Interval = 6000;
 			// And start it        
 			deltaTimer.Enabled = true;
 
 			// Force the filter box placeholder info (since WPF doesn't think placeholders are necessary or useful... apparently)
 			SetPlaceholder(null, null);
 
+			if (diag)
+			{
+				DiagButton.Visibility = Visibility.Visible;
+			}
 		}
 	}
 }
