@@ -90,6 +90,7 @@ namespace Paneless.Helpers
 			if (which == "LidNoSleep") return LidIsSleepy();
 			if (which == "StartSuggestions") return StartSuggestionsIsOff();
 			if (which == "WindowsTips") return WindowsNaggingPowerOff();
+			if (which == "AdvertisingID") return TrackingTheCattle();
 			// Just in case, return false
 			return false;
 		}
@@ -112,6 +113,7 @@ namespace Paneless.Helpers
 			if (which == "LidNoSleep") LaptopCaffine();
 			if (which == "StartSuggestions") SmotherStartSuggestions();
 			if (which == "WindowTips") NoIdontWantEdgeNowOrEver();
+			if (which == "AdvertisingID") ImNotCattle();
 		}
 
 
@@ -133,8 +135,10 @@ namespace Paneless.Helpers
 			if (which == "LidNoSleep") LaptopNarcolepsy();
 			if (which == "StartSuggestions") AllowStartSuggestions();
 			if (which == "WindowsTips") ILikeNaggingHurtMeWindows();
+			if (which == "AdvertisingID") ILikeToMoo();
 
 		}
+
 
 		// Safe delete of trees to prevent annoying and unnecessary error messages
 		public static void DelTree(RegistryHive registryHive, string fullPathKeyToDelete)
@@ -147,6 +151,42 @@ namespace Paneless.Helpers
 				baseKey.DeleteSubKeyTree(fullPathKeyToDelete);
 			}
 		}
+
+
+		// ***********************
+		// FIXES
+
+
+		private bool TrackingTheCattle()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"))
+				{
+					return (GetValueInt(subKey, "Enabled") == 0);
+				}
+			}
+		}
+
+		private void ImNotCattle()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo",true);
+				subKey.SetValue("Enabled", 0, RegistryValueKind.DWord);
+			}
+		}
+
+		
+		private void ILikeToMoo()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo",true);
+				subKey.SetValue("Enabled", 1, RegistryValueKind.DWord);
+			}
+		}
+
 
 		public bool F1HelpFixed()
 		{

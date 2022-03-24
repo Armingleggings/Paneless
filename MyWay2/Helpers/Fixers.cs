@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
+using Microsoft.Office.Interop.Word;
 
 namespace Paneless.Helpers
 {
@@ -21,9 +19,42 @@ namespace Paneless.Helpers
 		// Watcher action toggles
 		public bool watchNumL = false;
 
+
 		// Translation array from fix shortname to various data about them
 		private Dictionary<string, Dictionary<string, string>> fixers = new Dictionary<string, Dictionary<string, string>>
 		{
+			["OfficePaste"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "PasteTextNotJunk",
+				["Img"] = @"/graphics/advertising_id.png",
+				["Title"] = @"Paste Plain Text as Default",
+				["Snark"] = @"
+					I suppose they were trying to be helpful in pulling in any and every possible extra information when you copy paste, but the thing is that should be an OPTION not the default.
+					Instead of helpful, it becomes a constant battle of having to paste things into Notepad to clean the extra content off before moving it to where you actually wanted it (you can also change each paste to ""paste as plain text"", but both are tedious).
+					To switch this inane default, click this fix
+					",				
+				["Description"] = @"
+					If you prefer to paste plain text without all the extra sytle or meta-data that comes with it by defualt, click this fix. You can still paste the extra stuff by using the menu, but 
+					""Paste Normal Text"" will be the default.
+					",
+				["Tags"] = "#Outlook, #CopyPaste, #PlainText"
+			},					
+			["AdvertisingID"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "ImNotCattleDontTagMe",
+				["Img"] = @"/graphics/advertising_id.png",
+				["Title"] = @"Disable Advertising ID",
+				["Snark"] = @"
+					There's a scale of people and companies I trust to know enough about me to make suggestions of products and services ranging from my close friends and family
+					all the way to data brokers who are trying to constantly scrape your information without consent. Microsoft has not earned that right. The advertising id is a way for
+					Windows to tattle on you to everyone so they can tag and track you like cattle. Click this fix to stop that.
+					",				
+				["Description"] = @"
+					An Advertising ID is a unique identify that Windows can provide to websites and apps (probably) so they can uniquely identify you and track your activity for advertising purposes.
+					If you trust this information will be used responsibly, leave this alone. If you don't, click this fix to disable the ""feature"".
+					",
+				["Tags"] = "#Ads, #Moo, #Privacy"
+			},			
 			["StartSuggestions"] = new Dictionary<string, string>
 			{
 				["PrefName"] = "NoOneAskedYouStartMenu",
@@ -319,6 +350,13 @@ namespace Paneless.Helpers
 		{
 			// For NumL, if it's watching, it's fixed.
 			if ("NumL" == which) return watchNumL;
+			if ("OfficePaste" == which)
+			{
+				//				WdPasteOptions PasteFormatFromExternalSource;
+				//				PasteFormatFromExternalSource(1);
+				return false;
+			}
+
 			// For anything registry related
 			return regStuff.IsFixed(which);
 		}

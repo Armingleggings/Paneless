@@ -305,13 +305,12 @@ namespace Paneless
 		private void MatchPrefs(object sender, RoutedEventArgs e)
 		{
 			ClearStatus();
-			// Match prefs will handle deltas
-			DeltasResolved();
 
 			// Collect activation messages
 			List<string> messages = new List<string>();
 			// throwaway to build the messages
 			string message = "";
+
 			foreach (var aBox in fixerBoxes)
 			{
 				FixerBox aFix = aBox.Value;
@@ -325,6 +324,8 @@ namespace Paneless
 						messages.Add(message);
 				}
 			}
+			// Match prefs will handle deltas
+			DeltasResolved();
 			// Tags just changed so update the view
 			TagFilter();
 			messages.Add("Done!");
@@ -645,37 +646,6 @@ namespace Paneless
 			}
 		}
 
-		// Just a little function I designed to be triggered on button press so I can test various things for debugging
-		private void DiagSomething(object sender, RoutedEventArgs e)
-		{
-			if (regStuff.IsFixed("WindowsTips"))
-				ShowStatus("Tips fixed");
-			else
-				ShowStatus("Tips not fixed");
-
-			if (regStuff.IsFixed("WindowsTips"))
-				{
-					// if the box isn't already showing fixed, change it
-//					this.Dispatcher.Invoke(() =>
-//					{
-						if (!fixerBoxes["WindowsTips"].IsFixed)
-							fixerBoxes["WindowsTips"].btnOn();
-						fixerBoxes["WindowsTips"].DeltaCheck(prefs.GetUserPrefs());
-//					});
-				}
-				else
-				{
-					// if the box is showing as fixed when, in reality, it isn't, change that
-//					this.Dispatcher.Invoke(() =>
-//					{
-						if (fixerBoxes["WindowsTips"].IsFixed)
-							fixerBoxes["WindowsTips"].btnOff();
-						fixerBoxes["WindowsTips"].DeltaCheck(prefs.GetUserPrefs());
-//					});
-				}
-
-		}
-
 		// If filter gains focus and doesn't have custom data in it, clear the placeholder
 		private void ClearPlaceholder(object sender, RoutedEventArgs e)
 		{
@@ -697,6 +667,26 @@ namespace Paneless
 		{
 			if (diag)
 				logger.WriteLine(toLog);
+		}
+
+
+		// Just a little function I designed to be triggered on button press so I can test various things for debugging
+		private void DiagSomething(object sender, RoutedEventArgs e)
+		{
+
+			/*
+			// Check for and remove a preffilemismatch tag from the filter if it's there
+			foreach (Button tag in ActiveTags.Children)
+			{
+				ShowStatus("looking at tag" + tag.Name);
+				if (tag.Name == "mismatchTag")
+				{
+					ShowStatus("removing tag" + tag.Name);
+					//RemoveTag(tag,null);
+					break;
+				}
+			}	
+			*/
 		}
 
 		public MainWindow()
