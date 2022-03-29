@@ -24,6 +24,7 @@
     <None Remove="Graphics\right_click_menu.png" />
     <None Remove="Graphics\start_suggestions.png" />
     <None Remove="Graphics\start_web_search.png" />
+    <None Remove="Graphics\task_manager_view.png" />
     <None Remove="Graphics\user_folder.png" />
     <None Remove="Graphics\windows.jpg" />
     <None Remove="Graphics\windows_tips.png" />
@@ -83,6 +84,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Graphics\start_web_search.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\task_manager_view.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Graphics\user_folder.png">

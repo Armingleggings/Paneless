@@ -8,21 +8,19 @@ namespace Paneless.Helpers
 	class Fixers
 	{
 
-		private string ClearWS(string str)
-		{
-			var first = str.Replace(System.Environment.NewLine, "");
-			return first.Replace("\t", "");
-		}
-
 		// Loads registry functions
 		private Regis regStuff = new Regis();
 		// Watcher action toggles
 		public bool watchNumL = false;
 
+		private JFN jfn = new JFN();
 
+		
 		// Translation array from fix shortname to various data about them
 		private Dictionary<string, Dictionary<string, string>> fixers = new Dictionary<string, Dictionary<string, string>>
 		{
+			/* 
+			 * couldn't get this to work
 			["OfficePaste"] = new Dictionary<string, string>
 			{
 				["PrefName"] = "PasteTextNotJunk",
@@ -38,7 +36,27 @@ namespace Paneless.Helpers
 					""Paste Normal Text"" will be the default.
 					",
 				["Tags"] = "#Outlook, #CopyPaste, #PlainText"
-			},					
+			},			
+			*/
+
+
+			["TaskManView"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "ShowUsefulTaskManager",
+				["Img"] = @"/graphics/task_manager_view.png",
+				["Title"] = @"Show the full Task Manager",
+				["Snark"] = @"
+					Can you even imagine? In a meeting room somewhere, someone pitched, ""Hey! Let's reduce the Task Manager to literally zero useful information""
+					and apparrently everyone clapped. Absurd. This, like many attempts to put training wheels on the computer was poorly-thought-out, though this one
+					especially. If you actually want to use the Task Manager, click this fix.
+					",				
+				["Description"] = @"
+					The Task Manager is an important tool for being able to see what is using your computer resources and what kind. In the ""minified"" state, you can only see
+					the names of programs and an ""End Task"" button which is next to useless. If that's enough for you, so be it. Otherwise, click this fix to have
+					the traditional Task Manager view.
+					",
+				["Tags"] = "#Outlook, #CopyPaste, #PlainText"
+			},				
 			["AdvertisingID"] = new Dictionary<string, string>
 			{
 				["PrefName"] = "ImNotCattleDontTagMe",
@@ -336,8 +354,8 @@ namespace Paneless.Helpers
 			// The readability hack above with multi-line strings introduces a bunch of extra whitespace. Let's clear that out
 			foreach (var fixKey in fixers.Keys)
 			{
-				fixers[fixKey]["Description"] = ClearWS(fixers[fixKey]["Description"]);
-				fixers[fixKey]["Snark"] = ClearWS(fixers[fixKey]["Snark"]);
+				fixers[fixKey]["Description"] = jfn.ClearWS(fixers[fixKey]["Description"]);
+				fixers[fixKey]["Snark"] = jfn.ClearWS(fixers[fixKey]["Snark"]);
 			}
 		}
 

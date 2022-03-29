@@ -14,6 +14,7 @@ using System.IO;
 using System.Windows.Navigation;
 using System.Windows.Media.Animation;
 using System.Threading;
+using System.Text;
 
 namespace Paneless
 {
@@ -35,18 +36,14 @@ namespace Paneless
 		private bool diag = true;
 		private StreamWriter logger = null;
 
+		private JFN jfn = new JFN();
+
 		// For numlock
 		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
 		public static extern short GetKeyState(int keyCode);
 
 		// Create a dictionary to hold our various controls.
 		private Dictionary<string, FixerBox> fixerBoxes = new Dictionary<string, FixerBox> { };
-
-		private string ClearWS(string str)
-		{
-			string temp = str.Replace("\t", "");
-			return temp;
-		}
 
 		// Because it's complex trying to make status work properly with just strings, we need a translation function to take a string and make any needed changes
 		private WrapPanel StatusMessage(string status)
@@ -66,11 +63,14 @@ namespace Paneless
 				btn.Click += RestartWinExplorer;
 			}
 
-			Label lbl = new Label();
-			lbl.Content = status;
+			TextBlock lbl = new TextBlock();
+			lbl.Text = status;
 			lbl.Foreground = new SolidColorBrush(Color.FromRgb(38, 98, 150));
 			lbl.FontWeight = FontWeights.Bold;
+			lbl.TextWrapping = TextWrapping.Wrap;
+			
 			pnl.Children.Add(lbl);
+			pnl.Margin = new Thickness(4, 4, 4, 4); 
 
 			if (btn != null)
 			{
@@ -158,67 +158,72 @@ namespace Paneless
 			string message;
 			if (fixers.GetFix(whichFix.Name).TryGetValue("Activation_message",out message) == true && (message.Length > 3))
 			{
-				ShowStatus(ClearWS(message));
+				ShowStatus(jfn.ClearWS(message));
 			}
 		}
 
 		// Since tags and filter text work together, this function checks both
-		private void TagFilter()
+		private async void TagFilter()
 		{
-			bool isFilter = false;
+			// Ran into threading problems so do the invoke to handle it.
 
-			// Everything that does tags ends up here so use this function to operate the tag messages
-			if (ActiveTags.Children.Count == 0)
+			Dispatcher.Invoke(() =>
 			{
-				TagGuideNone.Visibility = Visibility.Visible;
-				TagGuideSome.Visibility = Visibility.Collapsed;
-			}
-			else
-			{
-				TagGuideNone.Visibility = Visibility.Collapsed;
-				TagGuideSome.Visibility = Visibility.Visible;
-			}
+				bool isFilter = false;
 
-			if (Filter.Text.Length > 0 && (string)Filter.Tag != "placeholder")
-				isFilter = true;
-
-			HashSet<string> boxTags = new HashSet<string>();
-			bool found;
-			foreach (var aBox in fixerBoxes)
-			{
-				boxTags.Clear();
-				// Make a test string full of tags for this box
-				foreach (Button looking in aBox.Value.FixerTags.Children)
+				// Everything that does tags ends up here so use this function to operate the tag messages
+				if (ActiveTags.Children.Count == 0)
 				{
-					boxTags.Add((string)looking.Content);
-				}
-
-				// If it's missing any tags, it's false
-				found = true;
-				foreach (var checkTag in tags)
-				{
-					if (!boxTags.Contains(checkTag))
-					{
-						found = false;
-					}
-				}
-				// If the filter has legit text in it
-				if (isFilter)
-				{
-					bool inTitle = fixerBoxes[aBox.Key].FixerTitle.Text.Contains(Filter.Text);
-					bool inText = fixerBoxes[aBox.Key].FixerDesc.Text.Contains(Filter.Text);
-					if (!inTitle && !inText) found = false;
-				}
-
-				if (!found)
-				{
-					fixerBoxes[aBox.Key].Visibility = Visibility.Collapsed;
+					TagGuideNone.Visibility = Visibility.Visible;
+					TagGuideSome.Visibility = Visibility.Collapsed;
 				}
 				else
 				{
-					fixerBoxes[aBox.Key].Visibility = Visibility.Visible;
+					TagGuideNone.Visibility = Visibility.Collapsed;
+					TagGuideSome.Visibility = Visibility.Visible;
 				}
-			}
+
+				if (Filter.Text.Length > 0 && (string)Filter.Tag != "placeholder")
+					isFilter = true;
+
+				HashSet<string> boxTags = new HashSet<string>();
+				bool found;
+				foreach (var aBox in fixerBoxes)
+				{
+					boxTags.Clear();
+					// Make a test string full of tags for this box
+					foreach (Button looking in aBox.Value.FixerTags.Children)
+					{
+						boxTags.Add((string)looking.Content);
+					}
+
+					// If it's missing any tags, it's false
+					found = true;
+					foreach (var checkTag in tags)
+					{
+						if (!boxTags.Contains(checkTag))
+						{
+							found = false;
+						}
+					}
+					// If the filter has legit text in it
+					if (isFilter)
+					{
+						bool inTitle = fixerBoxes[aBox.Key].FixerTitle.Text.Contains(Filter.Text);
+						bool inText = fixerBoxes[aBox.Key].FixerDesc.Text.Contains(Filter.Text);
+						if (!inTitle && !inText) found = false;
+					}
+
+					if (!found)
+					{
+						fixerBoxes[aBox.Key].Visibility = Visibility.Collapsed;
+					}
+					else
+					{
+						fixerBoxes[aBox.Key].Visibility = Visibility.Visible;
+					}
+				}
+			});
 
 		}
 
@@ -291,10 +296,8 @@ namespace Paneless
 			// Check for and remove a preffilemismatch tag from the filter if it's there
 			foreach (Button tag in ActiveTags.Children)
 			{
-				Log("looking at tag" + tag.Name);
-				if (tag.Name == "mismatchTag")
+				if (tag.Content == "#PrefFileMismatch")
 				{
-					Log("removing tag" + tag.Name);
 					RemoveTag(tag,null);
 					break;
 				}
@@ -324,9 +327,9 @@ namespace Paneless
 						messages.Add(message);
 				}
 			}
-			// Match prefs will handle deltas
+			// We just fixed these so reset all the flags and buttons relevant to matching prefs
 			DeltasResolved();
-			// Tags just changed so update the view
+			// Prefmismatch tag should have been removed so update view.
 			TagFilter();
 			messages.Add("Done!");
 			MultiStatus(messages);
@@ -517,29 +520,29 @@ namespace Paneless
 
 			// Grab the list of defined fixers from the fixers class.
 			var fixNames = fixers.FixerNames();
+			// Did something change?
+			bool changed = false;
 			foreach (string key in fixNames)
 			{
 				var temp = fixers.GetFix(key);
 
 				// Check to see if it's already active or not
-				if (fixers.IsFixed(key))
+				if (fixers.IsFixed(key) && !fixerBoxes[key].IsFixed)
 				{
-					// if the box isn't already showing fixed, change it
+					changed = true;
 					// Can't remember why I need in invoke thing, but it's necessary to prevent an error about threads and ownership or some nonsense.
 					this.Dispatcher.Invoke(() =>
 					{
-						if (!fixerBoxes[key].IsFixed)
-							fixerBoxes[key].btnOn();
+						fixerBoxes[key].btnOn();
 						fixerBoxes[key].DeltaCheck(prefs.GetUserPrefs());
 					});
 				}
-				else
+				else if (!fixers.IsFixed(key) && fixerBoxes[key].IsFixed)
 				{
-					// if the box is showing as fixed when, in reality, it isn't, change that
+					changed = true;
 					this.Dispatcher.Invoke(() =>
 					{
-						if (fixerBoxes[key].IsFixed)
-							fixerBoxes[key].btnOff();
+						fixerBoxes[key].btnOff();
 						fixerBoxes[key].DeltaCheck(prefs.GetUserPrefs());
 					});
 				}
@@ -574,6 +577,9 @@ namespace Paneless
 				}
 			// If we have delta's show the button to fix them
 			IfDeltasShowMatchButton();
+			// If something changed, make sure to update the view for the filters (prefmismatch mostly.. probably all)
+			if (changed)
+				TagFilter();
 
 			locker.ReleaseMutex();
 		}
@@ -670,23 +676,23 @@ namespace Paneless
 		}
 
 
+		// Print_r equivalent - https://stackoverflow.com/questions/4023462/how-do-i-automatically-display-all-properties-of-a-class-and-their-values-in-a-s
+		private string PropertyList(object obj)
+		{
+			var props = obj.GetType().GetProperties();
+			var sb = new StringBuilder();
+			foreach (var p in props)
+			{
+				sb.AppendLine(p.Name + ": " + p.GetValue(obj, null));
+			}
+			return sb.ToString();
+		}
+
 		// Just a little function I designed to be triggered on button press so I can test various things for debugging
 		private void DiagSomething(object sender, RoutedEventArgs e)
 		{
 
-			/*
-			// Check for and remove a preffilemismatch tag from the filter if it's there
-			foreach (Button tag in ActiveTags.Children)
-			{
-				ShowStatus("looking at tag" + tag.Name);
-				if (tag.Name == "mismatchTag")
-				{
-					ShowStatus("removing tag" + tag.Name);
-					//RemoveTag(tag,null);
-					break;
-				}
-			}	
-			*/
+	
 		}
 
 		public MainWindow()
@@ -714,7 +720,13 @@ namespace Paneless
 			else
 				NoSnark(null, null);
 			// This is a dirty hack - the snark settings have status messages, but we don't want to see that on first load
-			ClearStatus();
+			//ClearStatus();
+			// Actually... we can clear the previous status whilst showing our disclaimer so let's do that.
+			ShowStatus(jfn.ClearWS(@"
+				Disclaimer: use at your own risk! Fixes are almost entirely settings toggles, but some use more advanced system changes to work. It's possible that 
+				this will create unintended behavior in edge cases where Windows or programs expect these settings to be default. It's probably not a serious risk, 
+				but it is a risk (you can always untoggle a fix, but it might be difficult to know which, if any, are causing the behavior).
+			"));
 
 			// Start the watcher
 			System.Timers.Timer deltaTimer = new System.Timers.Timer();

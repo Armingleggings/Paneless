@@ -90,10 +90,12 @@ namespace Paneless.Helpers
 			if (which == "LidNoSleep") return LidIsSleepy();
 			if (which == "StartSuggestions") return StartSuggestionsIsOff();
 			if (which == "WindowsTips") return WindowsNaggingPowerOff();
-			if (which == "AdvertisingID") return TrackingTheCattle();
+			if (which == "AdvertisingID") return TrackingTheCattleOff();
+			if (which == "TaskManView") return TaskTrainingWheelsOff();
 			// Just in case, return false
 			return false;
 		}
+
 
 		public void FixIt(string which)
 		{
@@ -112,9 +114,11 @@ namespace Paneless.Helpers
 			if (which == "StartWebSearch") StartWebSearchDisable();
 			if (which == "LidNoSleep") LaptopCaffine();
 			if (which == "StartSuggestions") SmotherStartSuggestions();
-			if (which == "WindowTips") NoIdontWantEdgeNowOrEver();
+			if (which == "WindowsTips") NoIdontWantEdgeNowOrEver();
 			if (which == "AdvertisingID") ImNotCattle();
+			if (which == "TaskManView") ActualTaskManager();
 		}
+
 
 
 		public void BreakIt(string which)
@@ -136,8 +140,10 @@ namespace Paneless.Helpers
 			if (which == "StartSuggestions") AllowStartSuggestions();
 			if (which == "WindowsTips") ILikeNaggingHurtMeWindows();
 			if (which == "AdvertisingID") ILikeToMoo();
+			if (which == "TaskManView") BabyTaskManager();
 
 		}
+
 
 
 		// Safe delete of trees to prevent annoying and unnecessary error messages
@@ -157,7 +163,35 @@ namespace Paneless.Helpers
 		// FIXES
 
 
-		private bool TrackingTheCattle()
+		private bool TaskTrainingWheelsOff()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager"))
+				{
+					return (GetValueInt(subKey, "Enabled") == 0);
+				}
+			}		}
+
+		private void ActualTaskManager()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true);
+				subKey.SetValue("Enabled", 1, RegistryValueKind.DWord);
+			}		}
+
+		private void BabyTaskManager()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true);
+				subKey.SetValue("Enabled", 1, RegistryValueKind.DWord);
+			}
+		}
+
+
+		private bool TrackingTheCattleOff()
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{

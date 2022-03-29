@@ -88,7 +88,6 @@ namespace Paneless
 			{
 				PrefAlertBtn = new Button();
 				PrefAlertBtn.Content = "#PrefFileMismatch";
-				PrefAlertBtn.Name = "mismatchTag";
 				PrefAlertBtn.Style = FindResource("LinkButton") as Style;
 				PrefAlertBtn.Foreground = new SolidColorBrush(Color.FromRgb(153, 0, 0));
 				PrefAlertBtn.Click += TagClick;
