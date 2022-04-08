@@ -167,27 +167,88 @@ namespace Paneless.Helpers
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager"))
+				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true))
 				{
-					return (GetValueInt(subKey, "Enabled") == 0);
+
+					byte[] prefs = (byte[])subKey.GetValue("Preferences");
+
+					if (prefs == null) return false;
+					return prefs[28] == (byte)0x00;
 				}
-			}		}
+			}
+		}
 
 		private void ActualTaskManager()
 		{
+
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true);
-				subKey.SetValue("Enabled", 1, RegistryValueKind.DWord);
-			}		}
+				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true))
+				{
+
+					byte[] prefs = (byte[])subKey.GetValue("Preferences");
+					prefs[28] &= (byte)0x00;
+					subKey.SetValue("Preferences", prefs);
+				}
+			}
+
+/*			RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\TaskManager", true);
+			byte[] data = (byte[])key.GetValue("Preferences");
+        
+			if (data != null)
+			{
+				data[28] &= (byte)0x00;
+				key.SetValue("Preferences", data);
+			}
+
+			key.Close();
+			return;
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+*//*				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true);
+				var binStr = HKCUGetBinaryValue(@"\Software\Microsoft\Windows\CurrentVersion\TaskManager", "Preferences");
+				binStr.Replace("42-60-f6", "7c-51-7f");
+				binStr.Replace("42-60-F6", "7C-51-7F");
+				subKey.SetValue("Preferences", Encoding.ASCII.GetBytes(binStr) , RegistryValueKind.Binary);
+*//*			}		
+*/		
+		}
 
 		private void BabyTaskManager()
 		{
+
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
-				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true);
-				subKey.SetValue("Enabled", 1, RegistryValueKind.DWord);
+				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager"))
+				{
+
+					byte[] prefs = (byte[])subKey.GetValue("Preferences");
+					prefs[28] &= (byte)0x01;
+					subKey.SetValue("Preferences", prefs);
+				}
 			}
+/*			RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\TaskManager", true);
+			byte[] data = (byte[])key.GetValue("Preferences");
+			#pragma warning restore CS8602 // Dereference of a possibly null reference.
+			#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+        
+			if (data != null)
+			{
+				data[28] |= (byte)0x01;
+				key.SetValue("Preferences", data);
+			}
+
+			key.Close();
+			return;
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+*//*				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true);
+				var binStr = HKCUGetBinaryValue(@"\Software\Microsoft\Windows\CurrentVersion\TaskManager", "Preferences");
+				binStr.Replace("7c-51-7f","42-60-f6");
+				binStr.Replace("7C-51-7F","42-60-F6");
+				subKey.SetValue("Preferences", Encoding.ASCII.GetBytes(binStr) , RegistryValueKind.Binary);*//*
+			}
+*/		
 		}
 
 
@@ -548,7 +609,7 @@ namespace Paneless.Helpers
 				using (RegistryKey explore = hku.OpenSubKey(loggedInSIDStr + @"\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}", true))
 				{
 					// Mode one for thumbnail view!
-					if (explore == null || (int)explore.GetValue("Mode") != 1)
+					if (explore == null || GetValueInt(explore, "Mode") != 1)
 						return false;
 					return true;
 				}
@@ -909,6 +970,36 @@ namespace Paneless.Helpers
 			}
 		}
 
+
+		public string HKCUGetValue(string branch, string value)
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + branch))
+				{ 
+					// If an Eplorer policy doesn't exist, that means it's not set
+					if (subKey == null) return "";
+					return subKey.GetValue(value).ToString();
+				}
+			}
+		}		
+		
+		public string HKCUGetBinaryValue(string branch, string value)
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + branch))
+				{
+					// If an Eplorer policy doesn't exist, that means it's not set
+					if (subKey == null) return "";
+					var data = (byte[])subKey.GetValue(value);
+					if (data != null)
+						return Encoding.ASCII.GetString(data);
+						//return BitConverter.ToString(data);
+					return "";
+				}
+			}
+		}
 
 
 	}

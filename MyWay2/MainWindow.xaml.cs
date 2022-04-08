@@ -691,7 +691,10 @@ namespace Paneless
 		// Just a little function I designed to be triggered on button press so I can test various things for debugging
 		private void DiagSomething(object sender, RoutedEventArgs e)
 		{
-
+			bool thing;
+			thing = regStuff.IsFixed("TaskManView");
+			ShowStatus(thing?"It's fixed":"notFixed");
+			//ShowStatus(regStuff.HKCUGetBinaryValue(@"\Software\Microsoft\Windows\CurrentVersion\TaskManager","Preferences"));
 	
 		}
 

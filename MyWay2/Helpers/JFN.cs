@@ -15,8 +15,9 @@ namespace Paneless.Helpers
 			str = str.Replace(System.Environment.NewLine, " ");
 			// But if I did use a trailing speace, now they are double spaces. Fix that
 			str = str.Replace("  ", " ");
+			str = str.Replace("\t", "");
 			// No tabs.
-			return str.Replace("\t", "");
+			return str.Trim();
 		}
 
 	}
