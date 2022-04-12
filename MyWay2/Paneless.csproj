@@ -8,30 +8,96 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Graphics\advertising_id.png" />
     <None Remove="Graphics\CMD.png" />
     <None Remove="Graphics\expand_files.png" />
+    <None Remove="Graphics\explore_ribbon.png" />
     <None Remove="Graphics\extensions.png" />
     <None Remove="Graphics\F1key.png" />
     <None Remove="Graphics\groupby.png" />
+    <None Remove="Graphics\hibernate.png" />
     <None Remove="Graphics\hidden_files.png" />
+    <None Remove="Graphics\lid_sleep.png" />
+    <None Remove="Graphics\logo.png" />
     <None Remove="Graphics\num_lock_off.png" />
     <None Remove="Graphics\num_lock_on.png" />
+    <None Remove="Graphics\right_click_menu.png" />
+    <None Remove="Graphics\start_suggestions.png" />
+    <None Remove="Graphics\start_web_search.png" />
+    <None Remove="Graphics\task_manager_view.png" />
     <None Remove="Graphics\user_folder.png" />
     <None Remove="Graphics\windows.jpg" />
+    <None Remove="Graphics\windows_tips.png" />
     <None Remove="windows.jpg" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Graphics\CMD.png" />
-    <Resource Include="Graphics\expand_files.png" />
-    <Resource Include="Graphics\extensions.png" />
-    <Resource Include="Graphics\F1key.png" />
-    <Resource Include="Graphics\groupby.png" />
-    <Resource Include="Graphics\hidden_files.png" />
-    <Resource Include="Graphics\num_lock_off.png" />
-    <Resource Include="Graphics\num_lock_on.png" />
-    <Resource Include="Graphics\user_folder.png" />
-    <Resource Include="Graphics\windows.jpg" />
+    <PackageReference Include="Microsoft.Office.Interop.Outlook" Version="15.0.4797.1003" />
+    <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1003" />
+    <PackageReference Include="MicrosoftOfficeCore" Version="15.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Graphics\advertising_id.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\CMD.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\expand_files.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\explore_ribbon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\extensions.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\F1key.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\groupby.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\hibernate.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\hidden_files.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\lid_sleep.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\num_lock_off.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\num_lock_on.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\right_click_menu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\start_suggestions.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\start_web_search.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\task_manager_view.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\user_folder.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\windows.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\windows_tips.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="windows.jpg" />
   </ItemGroup>
 
