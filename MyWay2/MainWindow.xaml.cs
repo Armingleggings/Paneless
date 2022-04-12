@@ -700,7 +700,7 @@ namespace Paneless
 
 		public MainWindow()
 		{
-			logger = new StreamWriter(regStuff.MyDocsPath() + @"\Paneless\log.txt");
+			//logger = new StreamWriter(regStuff.MyDocsPath() + @"\Paneless\log.txt");
 
 			InitializeComponent();
 			// Had to do it here because it needs this path, but we couldn't use the regstuff var in the initializers area (shrug)
