@@ -40,6 +40,21 @@ namespace Paneless.Helpers
 			*/
 
 
+			["NoSwipe"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "LoginWithoutSwiping",
+				["Img"] = @"/graphics/lockscreen.png",
+				["Title"] = @"Disable extra click/swipe before login",
+				["Snark"] = @"
+					Here's a great idea: have an extra barrier to logging in that requires a click... no wait, it was a swipe... wait a click? Dang! Now I only half-swiped. Crap! 
+					This is hard to do with a mouse! Or... let's just turn that nonsense off. Click to make the computer show the login screen immediately instead of having a silly barrier in the way.
+					",				
+				["Description"] = @"
+					For some reason, Windows 10+ likes to load with a pretty picture and no login controls. To reach login, you have to click or swipe (or click then swipe) which is an extra step 
+					that really doesn't seem necessary. If you agree, click this fix.
+					",
+				["Tags"] = "#Windows, #Login, #DesignedForMobile"
+			},				
 			["TaskManView"] = new Dictionary<string, string>
 			{
 				["PrefName"] = "ShowUsefulTaskManager",

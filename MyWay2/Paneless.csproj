@@ -18,6 +18,7 @@
     <None Remove="Graphics\hibernate.png" />
     <None Remove="Graphics\hidden_files.png" />
     <None Remove="Graphics\lid_sleep.png" />
+    <None Remove="Graphics\lockscreen.png" />
     <None Remove="Graphics\logo.png" />
     <None Remove="Graphics\num_lock_off.png" />
     <None Remove="Graphics\num_lock_on.png" />
@@ -29,6 +30,12 @@
     <None Remove="Graphics\windows.jpg" />
     <None Remove="Graphics\windows_tips.png" />
     <None Remove="windows.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Graphics\lockscreen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
