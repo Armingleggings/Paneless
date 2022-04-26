@@ -92,6 +92,7 @@ namespace Paneless.Helpers
 			if (which == "WindowsTips") return WindowsNaggingPowerOff();
 			if (which == "AdvertisingID") return TrackingTheCattleOff();
 			if (which == "TaskManView") return TaskTrainingWheelsOff();
+			if (which == "NoSwipe") return LockScreenOff();
 			// Just in case, return false
 			return false;
 		}
@@ -117,6 +118,7 @@ namespace Paneless.Helpers
 			if (which == "WindowsTips") NoIdontWantEdgeNowOrEver();
 			if (which == "AdvertisingID") ImNotCattle();
 			if (which == "TaskManView") ActualTaskManager();
+			if (which == "NoSwipe") StraightToLogin();
 		}
 
 
@@ -141,8 +143,27 @@ namespace Paneless.Helpers
 			if (which == "WindowsTips") ILikeNaggingHurtMeWindows();
 			if (which == "AdvertisingID") ILikeToMoo();
 			if (which == "TaskManView") BabyTaskManager();
+			if (which == "NoSwipe") SwipeToLogin();
 
 		}
+
+
+        /*                    
+												 _                 
+											    | |                
+		 _ __   ___  _ __ ___    ___  _ __ ___  | |__    ___  _ __ 
+		| '__| / _ \| '_ ` _ \  / _ \| '_ ` _ \ | '_ \  / _ \| '__|
+		| |   |  __/| | | | | ||  __/| | | | | || |_) ||  __/| |   
+		|_|    \___||_| |_| |_| \___||_| |_| |_||_.__/  \___||_|   
+                                                           
+
+		NO leading slash for localmachine
+		USE leading slash for anything prepended with loggedInSIDStr + 
+
+        */                                      
+
+
+
 
 
 
@@ -161,6 +182,41 @@ namespace Paneless.Helpers
 
 		// ***********************
 		// FIXES
+
+
+		private bool LockScreenOff()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey subKey = hku.OpenSubKey(@"Software\Policies\Microsoft\Windows\Personalization"))
+				{
+					if (subKey == null) return false;
+					return (GetValueInt(subKey, "NoLockScreen") == 1);
+				}
+			}		
+		}
+
+		private void StraightToLogin()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey subKey = hku.CreateSubKey(@"Software\Policies\Microsoft\Windows\Personalization",true))
+				{
+					subKey.SetValue("NoLockScreen", 1);
+				}
+			}
+		}
+
+		private void SwipeToLogin()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+			{
+				using (RegistryKey subKey = hku.CreateSubKey(@"Software\Policies\Microsoft\Windows\Personalization",true))
+				{
+					subKey.SetValue("NoLockScreen", 0);
+				}
+			}
+		}
 
 
 		private bool TaskTrainingWheelsOff()
@@ -191,27 +247,6 @@ namespace Paneless.Helpers
 					subKey.SetValue("Preferences", prefs);
 				}
 			}
-
-/*			RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\TaskManager", true);
-			byte[] data = (byte[])key.GetValue("Preferences");
-        
-			if (data != null)
-			{
-				data[28] &= (byte)0x00;
-				key.SetValue("Preferences", data);
-			}
-
-			key.Close();
-			return;
-			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
-			{
-*//*				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true);
-				var binStr = HKCUGetBinaryValue(@"\Software\Microsoft\Windows\CurrentVersion\TaskManager", "Preferences");
-				binStr.Replace("42-60-f6", "7c-51-7f");
-				binStr.Replace("42-60-F6", "7C-51-7F");
-				subKey.SetValue("Preferences", Encoding.ASCII.GetBytes(binStr) , RegistryValueKind.Binary);
-*//*			}		
-*/		
 		}
 
 		private void BabyTaskManager()
@@ -227,28 +262,6 @@ namespace Paneless.Helpers
 					subKey.SetValue("Preferences", prefs);
 				}
 			}
-/*			RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\TaskManager", true);
-			byte[] data = (byte[])key.GetValue("Preferences");
-			#pragma warning restore CS8602 // Dereference of a possibly null reference.
-			#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-        
-			if (data != null)
-			{
-				data[28] |= (byte)0x01;
-				key.SetValue("Preferences", data);
-			}
-
-			key.Close();
-			return;
-			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
-			{
-*//*				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true);
-				var binStr = HKCUGetBinaryValue(@"\Software\Microsoft\Windows\CurrentVersion\TaskManager", "Preferences");
-				binStr.Replace("7c-51-7f","42-60-f6");
-				binStr.Replace("7C-51-7F","42-60-F6");
-				subKey.SetValue("Preferences", Encoding.ASCII.GetBytes(binStr) , RegistryValueKind.Binary);*//*
-			}
-*/		
 		}
 
 
