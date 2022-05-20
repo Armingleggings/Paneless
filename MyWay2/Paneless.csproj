@@ -29,6 +29,7 @@
     <None Remove="Graphics\user_folder.png" />
     <None Remove="Graphics\windows.jpg" />
     <None Remove="Graphics\windows_tips.png" />
+    <None Remove="Graphics\windows_welcome.png" />
     <None Remove="windows.jpg" />
   </ItemGroup>
 
@@ -103,6 +104,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Graphics\windows_tips.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Graphics\windows_welcome.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="windows.jpg" />

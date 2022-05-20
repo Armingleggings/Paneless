@@ -93,10 +93,10 @@ namespace Paneless.Helpers
 			if (which == "AdvertisingID") return TrackingTheCattleOff();
 			if (which == "TaskManView") return TaskTrainingWheelsOff();
 			if (which == "NoSwipe") return LockScreenOff();
+			if (which == "Welcome") return WelcomeOff();
 			// Just in case, return false
 			return false;
 		}
-
 
 		public void FixIt(string which)
 		{
@@ -119,6 +119,7 @@ namespace Paneless.Helpers
 			if (which == "AdvertisingID") ImNotCattle();
 			if (which == "TaskManView") ActualTaskManager();
 			if (which == "NoSwipe") StraightToLogin();
+			if (which == "Welcome") WelcomeExperienceDie();
 		}
 
 
@@ -144,7 +145,7 @@ namespace Paneless.Helpers
 			if (which == "AdvertisingID") ILikeToMoo();
 			if (which == "TaskManView") BabyTaskManager();
 			if (which == "NoSwipe") SwipeToLogin();
-
+			if (which == "Welcome") WelcomeExperienceAllowed();
 		}
 
 
@@ -184,6 +185,7 @@ namespace Paneless.Helpers
 		// FIXES
 
 
+	
 		private bool LockScreenOff()
 		{
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
@@ -982,6 +984,39 @@ namespace Paneless.Helpers
 				subKey.SetValue("SubscribedContent-338382Enabled", 1, RegistryValueKind.DWord);
 			}
 		}
+		
+		private bool WelcomeOff()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"))
+				{ 
+					// If an Eplorer policy doesn't exist, that means it's not set
+					if (subKey == null) return true;
+					return (GetValueInt(subKey,"SubscribedContent-310093Enabled") == 0);
+				}
+			}
+		}
+
+		private void WelcomeExperienceDie()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",true);
+				subKey.SetValue("SubscribedContent-310093Enabled", 0, RegistryValueKind.DWord);
+			}
+		}
+
+		private void WelcomeExperienceAllowed()
+		{
+			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			{
+				RegistryKey subKey = hku.CreateSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",true);
+				subKey.SetValue("SubscribedContent-310093Enabled", 1, RegistryValueKind.DWord);
+			}
+		}
+
+
 
 
 		public string HKCUGetValue(string branch, string value)
