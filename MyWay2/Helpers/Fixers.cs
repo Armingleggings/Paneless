@@ -40,6 +40,21 @@ namespace Paneless.Helpers
 			*/
 
 
+			["Welcome"] = new Dictionary<string, string>
+			{
+				["PrefName"] = "WelcomeExperienceAfterEveryDamnedUpdate",
+				["Img"] = @"/graphics/windows_welcome.png",
+				["Title"] = @"Disable Welcome to Windows after updates",
+				["Snark"] = @"
+					Another volley in Microsoft's cloying desperation to trick you into picking Edge as your browser; the Welcome to Windows screen that shows up after updates is clearly intended into 
+					confusing you into selecting their browser (and other options that benefit Microsoft) instead of leaving your crap alone... the way you already set it.
+					",				
+				["Description"] = @"
+					On major updates to Windows, it shows you the Welcome Experience again in an attempt to give you a second chance to do things their way. If you don't need the nag, 
+					click this fix to disable this obnoxious behavior.
+					",
+				["Tags"] = "#Windows, #Update, #Nags, #PweaseUseEdgeSempai, #TrickGrandmaWhenYourNotThereToHelpHer"
+			},	
 			["NoSwipe"] = new Dictionary<string, string>
 			{
 				["PrefName"] = "LoginWithoutSwiping",
