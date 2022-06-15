@@ -97,12 +97,10 @@ namespace Paneless
 			PulseStatus();
 
 			foreach (string message in messages)
-			{
 				StatusArea.Children.Add(StatusMessage("* "+message));
-			}
 		}
 
-		// Show a single status message
+		// Show a single status message - adding something to trigger github to actually merge so changing this comment.
 		private void ShowStatus(string status)
 		{
 			ClearStatus();
