@@ -45,6 +45,11 @@ namespace Paneless
 		// Create a dictionary to hold our various controls.
 		private Dictionary<string, FixerBox> fixerBoxes = new Dictionary<string, FixerBox> { };
 
+		private bool iContains(string haystack, string needle)
+		{
+			return (haystack.IndexOf(needle, 0, StringComparison.CurrentCultureIgnoreCase) != -1);
+		}
+
 		// Because it's complex trying to make status work properly with just strings, we need a translation function to take a string and make any needed changes
 		private WrapPanel StatusMessage(string status)
 		{
@@ -52,7 +57,7 @@ namespace Paneless
 			WrapPanel pnl = new WrapPanel();
 
 			// There's probably a much cleaner way of doing this. Oh well...
-			if (status.Contains("#RestartWinExplorer"))
+			if (iContains(status,"#RestartWinExplorer"))
 			{
 				status.Replace("#RestartWinExplorer", "");
 				btn = new Button();
@@ -207,8 +212,8 @@ namespace Paneless
 					// If the filter has legit text in it
 					if (isFilter)
 					{
-						bool inTitle = fixerBoxes[aBox.Key].FixerTitle.Text.Contains(Filter.Text);
-						bool inText = fixerBoxes[aBox.Key].FixerDesc.Text.Contains(Filter.Text);
+						bool inTitle = iContains(fixerBoxes[aBox.Key].FixerTitle.Text,Filter.Text);
+						bool inText = iContains(fixerBoxes[aBox.Key].FixerDesc.Text,Filter.Text);
 						if (!inTitle && !inText) found = false;
 					}
 
