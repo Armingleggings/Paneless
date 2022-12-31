@@ -580,6 +580,8 @@ namespace Paneless.Helpers
 		//"{7FDE1A1E-8B31-49A5-93B8-6BE14CFA4943}"
 		internal bool DownloadGroupByOff()
 		{
+			// It's not working so...
+			return false;
 			// Using "using" to handle auto-close when it leaves this code block (so we don't have to manually close before returning)
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
