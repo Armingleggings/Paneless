@@ -223,7 +223,10 @@ namespace Paneless.Helpers
 
 		private bool TaskTrainingWheelsOff()
 		{
-			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
+			// disabled for now because I can't figure out how to do this properly and it keeps creating errors.
+			return false;
+
+/*			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
 				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true))
 				{
@@ -235,7 +238,7 @@ namespace Paneless.Helpers
 					return prefs[28] == (byte)0x00;
 				}
 			}
-		}
+*/		}
 
 		private void ActualTaskManager()
 		{
