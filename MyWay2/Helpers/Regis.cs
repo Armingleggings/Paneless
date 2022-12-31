@@ -227,6 +227,7 @@ namespace Paneless.Helpers
 			{
 				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true))
 				{
+					if (subKey == null) return false;
 
 					byte[] prefs = (byte[])subKey.GetValue("Preferences");
 
@@ -243,7 +244,6 @@ namespace Paneless.Helpers
 			{
 				using (RegistryKey subKey = hku.OpenSubKey(loggedInSIDStr + @"\Software\Microsoft\Windows\CurrentVersion\TaskManager",true))
 				{
-
 					byte[] prefs = (byte[])subKey.GetValue("Preferences");
 					prefs[28] &= (byte)0x00;
 					subKey.SetValue("Preferences", prefs);
