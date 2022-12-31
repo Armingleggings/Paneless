@@ -91,7 +91,7 @@ namespace Paneless.Helpers
 			if (which == "StartSuggestions") return StartSuggestionsIsOff();
 			if (which == "WindowsTips") return WindowsNaggingPowerOff();
 			if (which == "AdvertisingID") return TrackingTheCattleOff();
-			if (which == "TaskManView") return TaskTrainingWheelsOff();
+			//if (which == "TaskManView") return TaskTrainingWheelsOff();
 			if (which == "NoSwipe") return LockScreenOff();
 			if (which == "Welcome") return WelcomeOff();
 			// Just in case, return false
@@ -117,7 +117,7 @@ namespace Paneless.Helpers
 			if (which == "StartSuggestions") SmotherStartSuggestions();
 			if (which == "WindowsTips") NoIdontWantEdgeNowOrEver();
 			if (which == "AdvertisingID") ImNotCattle();
-			if (which == "TaskManView") ActualTaskManager();
+			//if (which == "TaskManView") ActualTaskManager();
 			if (which == "NoSwipe") StraightToLogin();
 			if (which == "Welcome") WelcomeExperienceDie();
 		}
@@ -143,7 +143,7 @@ namespace Paneless.Helpers
 			if (which == "StartSuggestions") AllowStartSuggestions();
 			if (which == "WindowsTips") ILikeNaggingHurtMeWindows();
 			if (which == "AdvertisingID") ILikeToMoo();
-			if (which == "TaskManView") BabyTaskManager();
+			//if (which == "TaskManView") BabyTaskManager();
 			if (which == "NoSwipe") SwipeToLogin();
 			if (which == "Welcome") WelcomeExperienceAllowed();
 		}
