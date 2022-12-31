@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\jeremyduffy\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\MyWay2\\Paneless.csproj": {}
+    "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\Paneless.csproj": {}
   },
   "projects": {
-    "C:\\Users\\jeremyduffy\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\MyWay2\\Paneless.csproj": {
+    "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\Paneless.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\jeremyduffy\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\MyWay2\\Paneless.csproj",
+        "projectUniqueName": "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\Paneless.csproj",
         "projectName": "Paneless",
-        "projectPath": "C:\\Users\\jeremyduffy\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\MyWay2\\Paneless.csproj",
-        "packagesPath": "C:\\Users\\jeremyduffy\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\jeremyduffy\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\MyWay2\\obj\\",
+        "projectPath": "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\Paneless.csproj",
+        "packagesPath": "C:\\Users\\J\\.nuget\\packages\\",
+        "outputPath": "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\jeremyduffy\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\J\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,9 +22,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://msazure.pkgs.visualstudio.com/_packaging/Official/nuget/v3/index.json": {},
-          "https://msblox.pkgs.visualstudio.com/DefaultCollection/_packaging/AzureGenevaMonitoring/nuget/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "netcoreapp3.1": {
@@ -44,11 +42,11 @@
           "dependencies": {
             "Microsoft.Office.Interop.Outlook": {
               "target": "Package",
-              "version": "[15.0.4797.1003, )"
+              "version": "[15.0.4797.1004, )"
             },
             "Microsoft.Office.Interop.Word": {
               "target": "Package",
-              "version": "[15.0.4797.1003, )"
+              "version": "[15.0.4797.1004, )"
             },
             "MicrosoftOfficeCore": {
               "target": "Package",
@@ -73,7 +71,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.414\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.215\\RuntimeIdentifierGraph.json"
         }
       }
     }

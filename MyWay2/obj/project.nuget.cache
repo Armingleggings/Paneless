@@ -1,34 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "USK5k4qO6R4QTfWLQfA++88UCZ4NreziN0kPkZ2LpMzgdW+FFNxM6MibVW+gCMOXPNAkU75zEE1OnGPhLCXoJg==",
+  "dgSpecHash": "8f2L6dbXGGsUxcWDX6kE3DSGpXqd8St/BL8GLJzp4Xvt52I3ylsU9jYxUt2z9w2hJOFHSMO4zPB3oVxwdDREdw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\jeremyduffy\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\MyWay2\\Paneless.csproj",
+  "projectFilePath": "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\Paneless.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\jeremyduffy\\.nuget\\packages\\microsoft.office.interop.outlook\\15.0.4797.1003\\microsoft.office.interop.outlook.15.0.4797.1003.nupkg.sha512",
-    "C:\\Users\\jeremyduffy\\.nuget\\packages\\microsoft.office.interop.word\\15.0.4797.1003\\microsoft.office.interop.word.15.0.4797.1003.nupkg.sha512",
-    "C:\\Users\\jeremyduffy\\.nuget\\packages\\microsoftofficecore\\15.0.0\\microsoftofficecore.15.0.0.nupkg.sha512"
+    "C:\\Users\\J\\.nuget\\packages\\microsoft.office.interop.outlook\\15.0.4797.1004\\microsoft.office.interop.outlook.15.0.4797.1004.nupkg.sha512",
+    "C:\\Users\\J\\.nuget\\packages\\microsoft.office.interop.word\\15.0.4797.1004\\microsoft.office.interop.word.15.0.4797.1004.nupkg.sha512",
+    "C:\\Users\\J\\.nuget\\packages\\microsoftofficecore\\15.0.0\\microsoftofficecore.15.0.0.nupkg.sha512"
   ],
   "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'Microsoft.Office.Interop.Outlook 15.0.4797.1003' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8' instead of the project target framework '.NETCoreApp,Version=v3.1'. This package may not be fully compatible with your project.",
-      "libraryId": "Microsoft.Office.Interop.Outlook",
-      "targetGraphs": [
-        ".NETCoreApp,Version=v3.1"
-      ]
-    },
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'Microsoft.Office.Interop.Word 15.0.4797.1003' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8' instead of the project target framework '.NETCoreApp,Version=v3.1'. This package may not be fully compatible with your project.",
-      "libraryId": "Microsoft.Office.Interop.Word",
-      "targetGraphs": [
-        ".NETCoreApp,Version=v3.1"
-      ]
-    },
     {
       "code": "NU1701",
       "level": "Warning",
