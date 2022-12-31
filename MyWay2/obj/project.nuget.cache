@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "04RmuEQcfWXz03AbSM8DH9mYq74i10+KH3bElDTrcEj6Viby4jN3K/8tLqFXQU1TMFUrA2+YZMqTQxe4N7lZKA==",
+  "dgSpecHash": "USK5k4qO6R4QTfWLQfA++88UCZ4NreziN0kPkZ2LpMzgdW+FFNxM6MibVW+gCMOXPNAkU75zEE1OnGPhLCXoJg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\jeremyduffy.REDMOND\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\MyWay2\\Paneless.csproj",
+  "projectFilePath": "C:\\Users\\jeremyduffy\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\MyWay2\\Paneless.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\jeremyduffy.REDMOND\\.nuget\\packages\\microsoft.office.interop.outlook\\15.0.4797.1003\\microsoft.office.interop.outlook.15.0.4797.1003.nupkg.sha512",
-    "C:\\Users\\jeremyduffy.REDMOND\\.nuget\\packages\\microsoft.office.interop.word\\15.0.4797.1003\\microsoft.office.interop.word.15.0.4797.1003.nupkg.sha512",
-    "C:\\Users\\jeremyduffy.REDMOND\\.nuget\\packages\\microsoftofficecore\\15.0.0\\microsoftofficecore.15.0.0.nupkg.sha512"
+    "C:\\Users\\jeremyduffy\\.nuget\\packages\\microsoft.office.interop.outlook\\15.0.4797.1003\\microsoft.office.interop.outlook.15.0.4797.1003.nupkg.sha512",
+    "C:\\Users\\jeremyduffy\\.nuget\\packages\\microsoft.office.interop.word\\15.0.4797.1003\\microsoft.office.interop.word.15.0.4797.1003.nupkg.sha512",
+    "C:\\Users\\jeremyduffy\\.nuget\\packages\\microsoftofficecore\\15.0.0\\microsoftofficecore.15.0.0.nupkg.sha512"
   ],
   "logs": [
     {
