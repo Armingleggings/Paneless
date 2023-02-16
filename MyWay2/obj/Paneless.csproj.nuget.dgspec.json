@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\Paneless.csproj": {}
+    "C:\\Users\\jeremyduffy.REDMOND\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\Paneless\\MyWay2\\Paneless.csproj": {}
   },
   "projects": {
-    "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\Paneless.csproj": {
+    "C:\\Users\\jeremyduffy.REDMOND\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\Paneless\\MyWay2\\Paneless.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\Paneless.csproj",
+        "projectUniqueName": "C:\\Users\\jeremyduffy.REDMOND\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\Paneless\\MyWay2\\Paneless.csproj",
         "projectName": "Paneless",
-        "projectPath": "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\Paneless.csproj",
-        "packagesPath": "C:\\Users\\J\\.nuget\\packages\\",
-        "outputPath": "D:\\Stuff\\Working\\repos\\Paneless\\MyWay2\\obj\\",
+        "projectPath": "C:\\Users\\jeremyduffy.REDMOND\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\Paneless\\MyWay2\\Paneless.csproj",
+        "packagesPath": "C:\\Users\\jeremyduffy.REDMOND\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jeremyduffy.REDMOND\\OneDrive - Microsoft\\Documents\\Working\\Paneless\\Paneless\\MyWay2\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\J\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\jeremyduffy.REDMOND\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -71,7 +75,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.215\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.114\\RuntimeIdentifierGraph.json"
         }
       }
     }

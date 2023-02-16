@@ -581,7 +581,7 @@ namespace Paneless.Helpers
 		internal bool DownloadGroupByOff()
 		{
 			// It's not working so...
-			return false;
+			return true;
 			// Using "using" to handle auto-close when it leaves this code block (so we don't have to manually close before returning)
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
@@ -621,6 +621,9 @@ namespace Paneless.Helpers
 
 		internal bool SearchGroupByOff()
 		{
+			// It's not working so...
+			return true;
+
 			// Using "using" to handle auto-close when it leaves this code block (so we don't have to manually close before returning)
 			using (RegistryKey hku = RegistryKey.OpenBaseKey(RegistryHive.Users, RegistryView.Registry64))
 			{
