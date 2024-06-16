@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixes</title>
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+	<link href='https://fonts.googleapis.com/css?family=Montserrat|Droid+Sans|Noto+Sans|Open+Sans|Varela+Round|Shadows+Into+Light+Two' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+	</head>
+<body>
+
+<style>
+body {
+	background: #0d1018;
+}
+h2,div {
+	font-family: 'Varela Round','Noto Sans','Open Sans', Sans-Serif !important;
+}
+
+#fixes_holder {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+}
+.a_fix {
+	background: #212a37;
+	border-radius: 10px;
+	margin: 15px;
+	color: #e3edf9;
+	padding: 20px;
+	max-width: 600px;
+}
+.a_fix img {
+	max-width: 150px;
+	border-radius: 6px;
+}
+.description, .snark {
+	padding: 0 0 0 20px;
+}
+.a_fix h2 {
+	display: flex;
+    flex-direction: row;
+	align-items: center;
+    justify-content: space-between;
+    margin: 0 0 11px 0;
+    padding: 6px;
+    background: #353f51;
+    border-radius: 5px;	
+}
+.a_fix h2 div:first-child {
+	font-size: 20px;
+	line-height: 24px;
+}
+
+.a_fix .button.on {
+	display:block;
+}
+.a_fix .button {
+	display: none;
+	padding: 5px 15px 5px 15px;
+	border-radius: 4px;
+	font-size: 15px;
+	line-height: 18px;
+	text-transform: capitalize;
+	color: #212a37;
+}
+.a_fix h2:hover {
+	cursor: pointer;
+	color: white;
+    background: #455065;
+}
+.a_fix h2:hover .default_button {
+	background-color: rgb(255, 238, 181);
+}
+.default_button {
+	background-color: rgb(248, 217, 114);
+	border: 1px solid rgb(150, 124, 67);
+}
+.a_fix h2:hover .fixed_button {
+	background-color: rgb(190, 255, 212);
+}
+.fixed_button {
+	background-color: rgb(114, 248, 159);
+	border: 1px solid rgb(67, 150, 92);
+}
+.a_tag {
+	color: rgb(162, 162, 255);
+	padding: 3px 5px;
+}
+.a_tag:hover {
+	cursor: pointer;
+	color: rgb(216, 216, 255);
+}
+.tags_area {
+	display: flex; 
+	flex-direction: row;
+	margin: 8px 0 0 0;
+}
+</style>
+
+<div id="fixes_holder">
+{% for key, a_fix in fixes.items() %}
+	<div class="a_fix">
+
+		<h2 title="Click to fix {{ a_fix.pref_name }}" data-fix-key="{{ key }}" data-fixed="{{ 1 if settings[a_fix.pref_name] else 0 }}">
+			<div>{{ a_fix.title }}</div>
+			<div class="button fixed_button {{ "on" if settings[a_fix.pref_name] else "" }}">Fixed!</div>
+			<div class="button default_button {{ "" if settings[a_fix.pref_name] else "on" }}">MS Default</div>
+		</h2>
+		<div style="display:flex">
+			<img src="{{ url_for('static', filename=a_fix.img) }}"/>
+			<!--div class="description">{{ a_fix.description }}</div-->
+			<div class="snark">{{ a_fix.snark }}</div>
+		</div>
+		<div class="tags_area">
+			{% for a_tag in a_fix.tags %}
+			<div class="a_tag">{{a_tag}}</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endfor %}
+</div>
+
+</body>
+</head>

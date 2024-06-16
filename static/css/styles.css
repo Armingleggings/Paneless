@@ -1,0 +1,76 @@
+/*********************/
+/* Standard HTML STUFF */
+/*********************/
+
+* {
+	border		: 0px;
+	margin		: 0px;
+	padding		: 0px;
+	font-size : 0;	/* prevents phantom spacing */ 	
+	vertical-align	: baseline;
+	/* The below fixes the fucked up box model that's been the standard for years.*/
+	/* Now, when I set a box to 200 pixels it's going to be 200 pixels regardless of borders or padding god damnit! */
+	box-sizing: border-box;         /* Opera/IE 8+ */	
+}
+
+/* override some seriously annoying behavior that happens in some bbrowsers */
+*:focus {
+	outline				: none;
+}
+
+table {
+	border-collapse		: collapse;
+	border-spacing		: 0;
+	table-layout		: fixed;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+html, body {
+	height			: 100%;	
+}
+
+body {
+	font-family: 'Varela Round','Noto Sans','Open Sans', Sans-Serif !important;
+	font-size : 16px;
+	color: #111;
+	line-height: 17px;
+}
+
+p {
+	margin-bottom		: 17px;
+	line-height: 25px;
+}
+
+p, li {
+	font-size: 17px;
+}
+ 
+li {
+	line-height: 22px;
+}
+
+pre {
+	font-size: 13px;
+}
+
+hr {
+	margin-left		: auto;
+	margin-right		: auto;
+	border-top: 1px solid #aaa;
+	margin-top		: 10px;
+	margin-bottom		: 10px;
+	text-align		: center;
+	width			: 100%;
+	clear			: both;
+}
+
+h2 {
+	font-size: 20px;
+	font-family: sans-serif;
+}
+div {
+	font-size: 15px;
+	font-family: sans-serif;
+}
