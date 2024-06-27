@@ -2,16 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixes</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+	<title>Fixes</title>
 	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 	<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 	<link href='https://fonts.googleapis.com/css?family=Montserrat|Droid+Sans|Noto+Sans|Open+Sans|Varela+Round|Shadows+Into+Light+Two' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
 	</head>
 <body>
 
@@ -27,6 +28,7 @@ h2,div {
 	display: flex;
 	flex-direction: row;
 	justify-content: flex-start;
+	flex-wrap: wrap;
 }
 .a_fix {
 	background: #212a37;
@@ -35,9 +37,10 @@ h2,div {
 	color: #e3edf9;
 	padding: 20px;
 	max-width: 600px;
+	min-width: 400px;
 }
 .a_fix img {
-	max-width: 150px;
+	max-height: 150px;
 	border-radius: 6px;
 }
 .description, .snark {
@@ -116,7 +119,7 @@ h2,div {
 		<div style="display:flex">
 			<img src="{{ url_for('static', filename=a_fix.img) }}"/>
 			<!--div class="description">{{ a_fix.description }}</div-->
-			<div class="snark">{{ a_fix.snark }}</div>
+			<div class="snark">{{ a_fix.snark|safe }}</div>
 		</div>
 		<div class="tags_area">
 			{% for a_tag in a_fix.tags %}
