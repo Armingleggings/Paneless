@@ -29,6 +29,7 @@ h2,div {
 	flex-direction: row;
 	justify-content: flex-start;
 	flex-wrap: wrap;
+	margin-top: 200px;
 }
 .a_fix {
 	background: #212a37;
@@ -38,6 +39,7 @@ h2,div {
 	padding: 20px;
 	max-width: 600px;
 	min-width: 400px;
+	border: 1px solid #353f51;
 }
 .a_fix img {
 	max-height: 150px;
@@ -55,6 +57,7 @@ h2,div {
     padding: 6px;
     background: #353f51;
     border-radius: 5px;	
+	position: relative;
 }
 .a_fix h2 div:first-child {
 	font-size: 20px;
@@ -88,6 +91,27 @@ h2,div {
 .a_fix h2:hover .fixed_button {
 	background-color: rgb(190, 255, 212);
 }
+
+.a_fix.delta {
+	border-color: orange;
+}
+.a_fix.delta .delta_mark {
+	display: block;
+}
+.a_fix h2 .delta_mark {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin-right: -10px;
+    display: none;
+    color: white;
+    background: orange;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 4px 8px;
+}
+
 .fixed_button {
 	background-color: rgb(114, 248, 159);
 	border: 1px solid rgb(67, 150, 92);
@@ -104,21 +128,302 @@ h2,div {
 	display: flex; 
 	flex-direction: row;
 	margin: 8px 0 0 0;
+	flex-wrap: wrap;
 }
+
+#restartWinExplorer {
+    font-size: 17px;
+	color: rgb(162, 162, 255);
+	cursor: pointer;
+}
+
+
+#message_cover {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0,0,0,0.4);
+	z-index: 1001;
+}
+
+#message_area {
+	position: relative
+}
+#message {
+	background: #212a37;
+    border-radius: 11px;
+    color: rgb(255 192 76);
+    padding: 14px;
+	max-width: 500px;
+	background: #212a37;
+	padding: 35px;
+}
+#message_x:hover {
+	background: #6c83ab;
+}
+#message_x {
+    font-size: 20px;
+    color: white;
+    background: #51668c;
+    padding: 8px;
+    position: absolute;
+    right: 0;
+    top: 0;
+	cursor: pointer;
+	border-bottom-left-radius: 8px;
+}
+
+#fixed_area {
+	background: #0d1018;
+	padding: 10px 30px 10px 10px;
+	box-shadow: 2px 0 4px rgba(0,0,0,0.1); /* Optional: add some shadow for effect */
+	margin: 12px;
+}
+.fixed {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 1000;
+}
+#menu_area {
+	border: 1px solid rgb(227, 237, 249);;
+	border-radius: 13px;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+#menu_area * {
+	color: rgb(227, 237, 249);
+	font-size: 16px;
+}
+#menu_area div, #menu_area p, #menu_area button {
+	font-size: 16px;
+}
+
+.menu_item {
+	background-color: rgb(33 42 55);
+	border-radius: 7px;
+	display: flex;
+	flex-direction: column;
+	margin: 7px;
+	max-width: 500px;
+	min-width: 300px;
+}
+
+.menu_item_bk {
+    background-color: #353f51;
+	border: none;
+	border-radius: 5px;
+	padding: 10px;
+}
+#filter_input::placeholder {
+	color: rgb(227, 237, 249);
+	opacity: 0.6; /* Adjust placeholder opacity for better contrast */
+}
+
+#filter_input {
+	background-color: rgb(33 42 55);
+	color: rgb(227, 237, 249);
+	flex: 1; /* Make the input take the remaining space */
+	margin-right: 10px; /* Space between input and button */
+	width: 280px
+}
+
+.menu_item input {
+	padding: 4px;
+	border-radius: 3px;
+}
+
+.menu_button:hover {
+	background: #6c83ab;
+}
+.menu_button {
+    color: rgb(227, 237, 249);
+    background-color: #353f51;
+    border: 1px solid rgb(227, 237, 249);
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 2px 8px;
+	min-width: 150px;
+}
+
+.control_explanation {
+    color: rgb(227, 237, 249);
+	padding: 10px;
+	display: none;
+}
+
+#explain_this_button {
+	display: block;
+}
+#explain_off_button {
+	display: none;
+}
+
+#menu_area.explain #explain_this_button {
+	display:none;
+}
+
+#menu_area.explain #explain_off_button {
+	display:block;
+}
+#menu_area.explain .control_explanation {
+	display: block;
+}
+
+p:not(:last-of-type), li:not(:last-of-type) {
+	margin-bottom: 12px;
+}
+
+ul {
+	margin-bottom: 30px;
+}
+
+li {
+	margin-left: 30px;
+}
+
+#menu_area strong {
+	color: rgb(255, 246, 142);
+}
+
+.sub_menu_area {
+}
+
+#snark_off_button, .snark {
+	display: {{ 'block' if menu_prefs["snark"] else "none" }};
+}
+
+#snark_on_button, .description {
+	display: {{ 'none' if menu_prefs["snark"] else "block" }};
+}
+
+
 </style>
+
+<div id="fixed_area">
+	<div id="menu_area" class="{{ 'explain' if menu_prefs["explain"] else "" }}">
+		<div class="sub_menu_area">
+			<div class="menu_item">
+				<div class="menu_item_bk saveable">
+					<button id="explain_this_button" class="menu_button">Explain controls</button>
+					<button id="explain_off_button" class="menu_button">Hide explanations</button>
+				</div>
+				<div class="control_explanation">
+					<p>This button toggles the menu explanations on and off. Explanations are on by default when you first load Paneless, but can be hidden by clicking the "Hide Explanations" button.</p>
+				</div>
+			</div>
+		</div>
+		<div class="sub_menu_area">
+			<div class="menu_item">
+				<div class="menu_item_bk saveable">
+					<button id="snark_on_button" class="menu_button">Snark OFF (click to add snark)</button>
+					<button id="snark_off_button" class="menu_button">Snark ON (click to tone it down)</button>
+				</div>
+				<div class="control_explanation">
+					<p>The first version of this tool involved some unfiltered frustrations with Windows' tendancy to abuse the trust and autonomy of its customers. For the full snark, turn on snark. To keep things more professional, go "snark off".</p>
+				</div>
+			</div>
+		</div>
+		<div class="sub_menu_area">
+			<div class="menu_item">
+				<div class="menu_item_bk">
+					<input type="text" id="state_name" placeholder="Enter save name here"/>
+					<button id="save_prefs_button" class="menu_button">Save fix preferences</button>
+				</div>
+				<div class="control_explanation">
+					<p>Saves your current set of fixes to a file. Also sets it as your preferred set of fixes which Paneless will
+					use on each subsequent load to make sure Windows didn't change your settings.</p>
+				</div>
+			</div>
+			<div class="menu_item">
+				<div class="menu_item_bk"><button id="load_state_button" class="menu_button">Load preference file</button></div>
+				<div class="control_explanation">
+					<p>Load a preferences file you saved (or one that was shared with you). Whatever preferences you currently have set will be replaced by the loaded file.</p>
+				</div>
+			</div>
+		</div>
+		<div class="sub_menu_area">
+			<div class="menu_item">
+				<div class="menu_item_bk">
+					<input type="text" id="filter_input" placeholder="Type here to filter fixes">
+					<button id="clear_filter_button" class="menu_button">Clear filter</button>
+				</div>
+				<div class="control_explanation">
+					<p>This is a basic text-filter. Type a few letters and any fix that doesn't contain the text you type in the <i>title</i>, <i>description</i> or <i>tags</i> will be hidden.</p>
+					<p>To remove the filter, erase the text manually or just click the "Clear Filter" button.</p>
+				</div>
+			</div>
+		</div>
+		<div class="sub_menu_area">
+			<div class="menu_item">
+				<div class="menu_item_bk">
+					<button id="fix_deltas" class="menu_button" title="Toggle all fixes below marked with a Δ">Fix deltas</button>
+				</div>
+				<div class="control_explanation">
+					<p>Windows likes to sneak around and undo your preferences changes. If it does, the fixes that aren't a match to your preference file are marked with a delta (Δ). Click this button to rapidly toggle each of these so they match your preferences files.</p>
+				</div>
+			</div>
+		</div>
+		<div class="sub_menu_area">
+			<div class="menu_item">
+				<div class="menu_item_bk">
+					<button id="fix_visible" class="menu_button" title="Toggle all fixes that are still visible after being filtered">Fix visible</button>
+				</div>
+				<div class="control_explanation">
+					<p>This button simply applies all fixes that are visible. If you used the text or tag filter, it will only include visible matches for those. If no filters are active, it will apply all fixes below.</p>
+				</div>
+			</div>
+		</div>
+		<div class="sub_menu_area">
+			<div class="menu_item">
+				<div class="menu_item_bk">
+					<div id="tags_filter_area"></div>
+					<button id="clear_tags" class="menu_button" title="Clear any currently set tag filters">Clear tags</button>
+				</div>
+				<div class="control_explanation">
+					<p>Clear any currently set tag filters.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="status_message"></div>
+</div>
+
+<div id="message_cover">
+	<div id="message_area">
+		<div id="message_x">X</div>
+		<div id="message">Test message. You shouldn't be able to see this.</div>
+	</div>
+</div>
+
 
 <div id="fixes_holder">
 {% for key, a_fix in fixes.items() %}
-	<div class="a_fix">
+	<div class="a_fix {{ "delta" if preferred_state[a_fix.pref_name] is defined and preferred_state[a_fix.pref_name] != current_state[a_fix.pref_name] else "" }}">
 
-		<h2 title="Click to fix {{ a_fix.pref_name }}" data-fix-key="{{ key }}" data-fixed="{{ 1 if settings[a_fix.pref_name] else 0 }}">
+		<h2 
+			title="Click to fix {{ a_fix.pref_name }}" 
+			data-fix-key="{{ key }}" 
+			data-fixed="{{ 1 if current_state[a_fix.pref_name] else 0 }}"
+		>
 			<div>{{ a_fix.title }}</div>
-			<div class="button fixed_button {{ "on" if settings[a_fix.pref_name] else "" }}">Fixed!</div>
-			<div class="button default_button {{ "" if settings[a_fix.pref_name] else "on" }}">MS Default</div>
+			<div class="button fixed_button {{ "on" if current_state[a_fix.pref_name] else "" }}">Fixed!</div>
+			<div class="button default_button {{ "" if current_state[a_fix.pref_name] else "on" }}">MS Default</div>
+			<div 
+				class="delta_mark" 
+				title="This setting DOES NOT MATCH your preferences file. To fix this, click this button or click the Fix deltas button above to fix all Deltas at once."
+				>Δ</div>
 		</h2>
 		<div style="display:flex">
 			<img src="{{ url_for('static', filename=a_fix.img) }}"/>
-			<!--div class="description">{{ a_fix.description }}</div-->
+			<div class="description">{{ a_fix.description|safe }}</div>
 			<div class="snark">{{ a_fix.snark|safe }}</div>
 		</div>
 		<div class="tags_area">
@@ -129,6 +434,17 @@ h2,div {
 	</div>
 {% endfor %}
 </div>
+
+<script>
+	// Dump backend vars
+	const current_state = JSON.parse('{{ current_state | tojson | safe }}');
+	const preferred_state = JSON.parse('{{ preferred_state | tojson | safe }}');
+	const message = '{{ message | safe }}';	
+
+	console.log(current_state)
+	console.log(preferred_state)
+	console.log(message)
+</script>
 
 </body>
 </head>

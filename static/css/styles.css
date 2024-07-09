@@ -43,7 +43,7 @@ p {
 	line-height: 25px;
 }
 
-p, li {
+p, li, b, i, li  {
 	font-size: 17px;
 }
  
@@ -73,4 +73,13 @@ h2 {
 div {
 	font-size: 15px;
 	font-family: sans-serif;
+
+
+a {
+	font-size:100%;
+	color: rgb(162, 162, 255);
+	text-decoration: none;
+}}
+a:hover {
+	color: rgb(216, 216, 255);
 }

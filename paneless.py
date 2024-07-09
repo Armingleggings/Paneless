@@ -4,6 +4,10 @@ import subprocess
 import sys
 import ctypes
 import os
+import psutil
+import json
+import glob
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -63,7 +67,7 @@ fixes = {
 		"description": """
 			<p>If you find it distracting having web results when searching from your start menu, click this fix to keep the search function focused on your files and programs only.</p>
 			""",
-		"activation_message": "Turn off Web in the Start Menu - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+		"activation_message": "Turn off Web in the Start Menu - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. <div id=restartWinExplorer>Click here to restart Windows Explorer now</div>",
 		"tags": ["#StartMenu", "#Internet", "#FeatureBleed"],
 		"reg_fix": [
 			{
@@ -269,7 +273,7 @@ fixes = {
 			fix to get the classic menu back.</p>
 			""",
 		"tags": ["#WindowsExplorer", "#Menus", "#HiddenControls", "Windows11", "#TrainingWheels"],
-		"activation_message": "Context Menu Fix - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+		"activation_message": "Context Menu Fix - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. <div id=restartWinExplorer>Click here to restart Windows Explorer now</div>",
 		"reg_fix": [
 			{
 				"hive": "HKEY_CURRENT_USER",
@@ -277,14 +281,15 @@ fixes = {
 				"fixed": [
 					{
 						#It can't even be "(Default) "" " or "(Default) value not set". It has to be "(Default) with literally nothing in the Data area
-						"name": "(Default)",
-						"data": None
+						"type": "string_val",
+						"name": "",
+						"data": ""
 					}
 				],
 				"default": [
 					{
-						"deletekey": 1,
-						"key": r"Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}",
+						# how many levels to delete. In this case, the last two
+						"deletekey": 2,
 					}				
 				]
 			}
@@ -304,6 +309,7 @@ fixes = {
 			If you didn't know what was happening or know but don't want that feature, enable this fix.</p>
 			""",
 		"tags": ["#Windows", "#UnwantedFeatures"],
+		"activation_message": "Disable Shake Minimize - Windows must be restarted before you'll see this change.",
 		"reg_fix": [
 			{
 				"hive": "HKEY_CURRENT_USER",
@@ -359,7 +365,7 @@ fixes = {
 	{
 		"pref_name": "VerboseLogInOut",
 		"img": "graphics/verbose_messaging.png",
-		"title": "Disable Cortana entirely",
+		"title": "Enable Verbose Messaging",
 		"snark": """
 			<p>I just like to know that Windows is doing something and maybe what it is. It's useful for debugging or just generally knowing that it's not doing nothing at all.
 			This fix enables more detailed status messages when logging in or out. (photo from thewindowsclub.com)</p>
@@ -369,7 +375,7 @@ fixes = {
 			This fix enables more detailed status messages when logging in or out. (photo from thewindowsclub.com)</p>
 			""",
 		"tags": ["#Windows", "#Improvements"],
-		"activation_message": "Verbose messaging - You won't see any changes until you next reboot",
+		"activation_message": "Verbose messaging - You won't see any changes until your next reboot",
 		"reg_fix": [
 			{
 				"hive": "HKEY_LOCAL_MACHINE",
@@ -447,8 +453,8 @@ fixes = {
 				],
 				"default": [
 					{
+						"deletevalue": 1,
 						"name": "SubscribedContent-338388Enabled",
-						"data": 1
 					}				
 				]
 			}
@@ -510,14 +516,30 @@ fixes = {
 				"path": r"SOFTWARE\Classes\Typelib\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}\1.0\0\win64",
 				"fixed": [
 					{
-						"name": "(Default)",
-						"data": None
+						"type": "string_val",
+						"name": "",
+						"data": ""
 					}
 				],
 				"default": [
 					{
-						"deletevalue": 1,
-						"key": r"SOFTWARE\Classes\Typelib\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}"
+						"deletekey": 1,
+					}				
+				]
+			},
+			{
+				"hive": "HKEY_CURRENT_USER",
+				"path": r"SOFTWARE\Classes\Typelib\{8cec5860-07a1-11d9-b15e-000d56bfe6ee}\1.0\0\win32",
+				"fixed": [
+					{
+						"type": "string_val",
+						"name": "",
+						"data": ""
+					}
+				],
+				"default": [
+					{
+						"deletekey": 1,
 					}				
 				]
 			}
@@ -538,15 +560,16 @@ fixes = {
 			to show ""Open CMD HERE"" on a folder. This restores that function AND it's at administrative level (and you don't need to CTRL+CLICK to see it)</p>
 			""",
 		"tags": [ "#WindowsExplorer","#TimeSaver","#AhHaHaThePower"],
+		"activation_message": "Context Menu Fix - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. <div id=restartWinExplorer>Click here to restart Windows Explorer now</div>",
 		"reg_fix": [
 			{
 				"hive": "HKEY_CLASSES_ROOT",
-				"path": r"Directory\Background\shell\OpenCmdHereAsAdmin",
+				"path": r"Directory\shell\OpenCmdHereAsAdmin",
 				"fixed": [
 					{
-						"name": "(Default)",
+						"name": "",
 						"type": "string_val",
-						"data": "Command Prompt (Admin)"
+						"data": "Admin CMD here"
 					},
 					{
 						"name": "icon",
@@ -556,12 +579,12 @@ fixes = {
 					{
 						"name": "HasLUAShield",
 						"type": "string_val",
-						"data": None
+						"data": ""
 					},
 					{
 						"name": "NoWorkingDirectory",
 						"type": "string_val",
-						"data": None
+						"data": ""
 					},
 					{
 						"name": "Position",
@@ -571,8 +594,60 @@ fixes = {
 				],
 				"default": [
 					{
-						"deletekey": 1,
-						"key": r"Directory\Background\shell\OpenCmdHereAsAdmin"
+						"nop": 1,
+					}				
+				]
+			},
+			{
+				"hive": "HKEY_CLASSES_ROOT",
+				"path": r"Directory\shell\OpenCmdHereAsAdmin\command",
+				"fixed": [
+					{
+						"name": "",
+						"type": "string_val",
+						"data": "cmd.exe /s /k pushd \"%V\""
+					}
+				],
+				# Delete is handled by the previous section since this key is under the one above
+				"default": [
+					{
+						"deletekey": 2,
+					}				
+				]
+			},
+			{
+				"hive": "HKEY_CLASSES_ROOT",
+				"path": r"Directory\Background\shell\OpenCmdHereAsAdmin",
+				"fixed": [
+					{
+						"name": "",
+						"type": "string_val",
+						"data": "Admin CMD here"
+					},
+					{
+						"name": "icon",
+						"type": "string_val",
+						"data": r"C:\Windows\System32\cmd.exe"
+					},
+					{
+						"name": "HasLUAShield",
+						"type": "string_val",
+						"data": ""
+					},
+					{
+						"name": "NoWorkingDirectory",
+						"type": "string_val",
+						"data": ""
+					},
+					{
+						"name": "Position",
+						"type": "string_val",
+						"data": "Top"
+					}
+				],
+				"default": [
+					{
+						"nop": 1,
 					}				
 				]
 			},
@@ -581,7 +656,7 @@ fixes = {
 				"path": r"Directory\Background\shell\OpenCmdHereAsAdmin\command",
 				"fixed": [
 					{
-						"name": "(Default)",
+						"name": "",
 						"type": "string_val",
 						"data": "cmd.exe /s /k pushd \"%V\""
 					}
@@ -589,10 +664,10 @@ fixes = {
 				# Delete is handled by the previous section since this key is under the one above
 				"default": [
 					{
-						"nop": 1,
+						"deletekey": 2,
 					}				
 				]
-			}
+			},
 		]
 	},
 	"NoNumL":
@@ -604,10 +679,13 @@ fixes = {
 			<p>Can you even imagine the though process that led to ""you know what we really need for our NUMBER PAD? Something that makes it NOT NUMBERS"". 
 			I'm convinced this is all some kind of nasty prank by a bored programmer somewhere. If you want to extend the long finger to that guy, click this fix and 
 			the key will be disabled forevermore (important! pair with the num lock on boot fix to keep numlock ALWAYS ON)!</p>
+			<p>THIS AFFECTS ALL USERS OF THIS MACHINE!</p>
 			""",				
+		"activation_message": "Num Lock Disable - You'll need to log out or reboot before seeing this take effect.",
 		"description": """
 			<p>I've heard legend of people who prefer their number pad not to be numbers, but I'm convinced it's a myth. If you want to force Num Lock on forever, click this fix
 			and then make sure "Num Lock ON when Booting" is also on and it will turn on when you boot and can't be turned off because they key will be disabled.</p>
+			<p>THIS AFFECTS ALL USERS OF THIS MACHINE!</p>
 			""",
 		"tags": [ "#Keyboard","#Rage","#NumLock","#WhyDoWeEvenHAVEThatLever"]
 	},			
@@ -671,7 +749,7 @@ fixes = {
 				"default": [
 					{
 						"name": "Start_AccountNotifications",
-						"data": 1
+						"deletevalue": 1
 					}				
 				]
 			}
@@ -692,6 +770,7 @@ fixes = {
 			For people who have trouble keeping track of how files and folders are arranged when some are left hidden, this fix makes them all visible all the time. You'll have to scroll a bit more, 
 			but at least you can see everything.</p>
 			""",
+		"activation_message": "Expand all folders - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. <div id=restartWinExplorer>Click here to restart Windows Explorer now</div>",
 		"tags": [ "#WindowsExplorer","#Navigation"],
 		"reg_fix": [
 			{
@@ -716,7 +795,7 @@ fixes = {
 	{
 		"pref_name": "ShowFileExtensionsNotJustStupidIcons",
 		"img": "graphics/expand_files.png",
-		"title": "Stop hiding file exentions",
+		"title": "Show all file extensions",
 		"snark": """
 			<p>Isn't it insane that the default behavior of Windows is to hide the extension/filetype from the users? So instead, all we see is the icon 
 			which varies by which program currently has ""ownership of it"". So what happens when we install an alternate PDF reader (or one gets installed 
@@ -726,7 +805,7 @@ fixes = {
 			On the assumption that file exensions is overly confusing for the average user, Windows hides them by default. This may have very little 
 			<p>effect for people who don't care and never need to change a file extension, but it's quite a bother for people who do. Click this fix to show all file extensions.</p>
 			""",
-		"activation_message": "Show File Extensions - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+		"activation_message": "Show File Extensions - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. <div id=restartWinExplorer>Click here to restart Windows Explorer now</div>",
 		"tags": [ "#WindowsExplorer","#Files"],
 		"reg_fix": [
 			{
@@ -761,7 +840,7 @@ fixes = {
 			<p>Files that manage folder settings, system controls, and so on are not always relevant and you might prefer to let Windows handle them. 
 			However, there are times it's useful to edit or modify those files which is hard if you can't see them. Click this fix to make them visible. </p>
 			""",
-		"activation_message": "Show Hidden Files - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+		"activation_message": "Show Hidden Files - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. <div id=restartWinExplorer>Click here to restart Windows Explorer now</div>",
 		"tags": [ "#WindowsExplorer","#Files"],
 		"reg_fix": [
 			{
@@ -789,15 +868,15 @@ fixes = {
 		"title": "Axe the User Folder in the navigation pane",
 		"snark": """
 			<p>Something that has annoyed me for YEARS is how the User folder and all it's various subfolders is in the navigation pane between Quick Access 
-			shortcuts that I like and My Computer (where I do any actual navigation). To Microsoft's credit, I didn't know that ""Show All Folders"" meant 
-			turning that on (along with Control Panel and Recycle Bin in the Nav area). Regardless, I never needed those two there anyway and getting rid 
-			of the turd is worth it.</p>
+			shortcuts that I like and My Computer (where I do any actual navigation). I never need things in my user folder and if you don't either, click this fix to 
+			keep it out of the way!</p>
 			""",				
 		"description": """
 			<p>When using the left-pane navigation in Windows Explorer, there's a ""User Folder"" with the various common locations for that user listed.
 			This is not helpful if you pin your key folders to Quick Access and commonly want to see the disk drives instead of user folders.
 			Click this fix to hide the folder so it doesn't get in the way.</p>
 			""",
+		"activation_message": "No User Nav Area - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. <div id=restartWinExplorer>Click here to restart Windows Explorer now</div>",
 		"tags": [ "#WindowsExplorer","#Navigation"],
 		"reg_fix": [
 			{
@@ -837,7 +916,6 @@ fixes = {
 			<a href="https://lesferch.github.io/WinSetView/">https://lesferch.github.io/WinSetView/</a></p>
 			<p>OR you can click here to open the included version (might be outdated compared to what's at the link).</p>
 			""",
-		"activation_message": "Disable Group-By (Search) - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
 		"tags": [ "#WindowsExplorer", "#Rage", "#SeriouslyRage", "#SoMuchRage"]
 	},			
 	"ExplorerRibbon":
@@ -853,26 +931,83 @@ fixes = {
 			<p>The Ribbon was a masterfull mix of function and design, but Microsoft determined that a minimal control bar would be more useful.
 			If you disagree, click this fix to return the ribbon in Windows Explorer.</p>
 			""",
-		"activation_message": "Windows Explorer Ribbon - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. #RestartWinExplorer",
+		"activation_message": "Windows Explorer Ribbon - Windows must be restarted OR restart Explorer from the Task Manager to see the changes. <div id=restartWinExplorer>Click here to restart Windows Explorer now</div>",
 		"tags": [ "#WindowsExplorer","#HiddenControls","#Downgrade","#Windows11"],
 		"reg_fix": [
 			{
 				"hive": "HKEY_CURRENT_USER",
-				"path": r"SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked",
+				"path": r"Software\Classes\CLSID\{2aa9162e-c906-4dd9-ad0b-3d24a8eef5a0}",
 				"fixed": [
 					{
-						"name": "{e2bf9676-5f8f-435c-97eb-11607a5bedf7}",
-						"type": "string_val",
-						"data": None
+						"name": "",
+						"data": "CLSID_ItemsViewAdapter",
+						"type": "string_val"
 					}
 				],
 				"default": [
 					{
-						"delete": 1,
-						"name": "{e2bf9676-5f8f-435c-97eb-11607a5bedf7}",
+						"nop": 1,
 					}				
 				]
-			}
+			},
+			{
+				"hive": "HKEY_CURRENT_USER",
+				"path": r"Software\Classes\CLSID\{2aa9162e-c906-4dd9-ad0b-3d24a8eef5a0}\InProcServer32",
+				"fixed": [
+					{
+						"name": "",
+						"data": r"C:\Windows\System32\Windows.UI.FileExplorer.dll_",
+						"type": "string_val"
+					},
+					{
+						"name": "ThreadingModel",
+						"data": "Apartment",
+						"type": "string_val"
+					}
+				],
+				"default": [
+					{
+						"deletekey": 2,
+					}				
+				]
+			},
+			{
+				"hive": "HKEY_CURRENT_USER",
+				"path": r"Software\Classes\CLSID\{6480100b-5a83-4d1e-9f69-8ae5a88e9a33}",
+				"fixed": [
+					{
+						"name": "",
+						"data": "File Explorer Xaml Island View Adapter",
+						"type": "string_val"
+					}
+				],
+				"default": [
+					{
+						"nop": 1,
+					}				
+				]
+			},
+			{
+				"hive": "HKEY_CURRENT_USER",
+				"path": r"Software\Classes\CLSID\{6480100b-5a83-4d1e-9f69-8ae5a88e9a33}\InProcServer32",
+				"fixed": [
+					{
+						"name": "",
+						"data": r"C:\Windows\System32\Windows.UI.FileExplorer.dll_",
+						"type": "string_val"
+					},
+					{
+						"name": "ThreadingModel",
+						"data": "Apartment",
+						"type": "string_val"
+					}
+				],
+				"default": [
+					{
+						"deletekey": 2,
+					}				
+				]
+			},
 		]
 	},
 	"Hibernate":
@@ -887,6 +1022,7 @@ fixes = {
 		"description": """
 			<p>For low power modes, sleep has many drawbacks. The computer is easily awoken, still uses power (which keeps accessories like cooling fans running and drains the battery), and is vulnerable to data loss if power is lost. Hibernate stores your computer state and shuts down completely. It's a great feature, but is hidden by default. Click this fix to have it listed along with your other power options.</p>
 			""",
+		"activation_message": "Enable Hibernate - Windows must be restarted to see the changes.",
 		"tags": [ "#Hidden Controls","#Hibernate","#Power","#StartMenu"],
 		"reg_fix": [
 			{
@@ -907,22 +1043,55 @@ fixes = {
 			}
 		]
 	},
+	"Torrent":
+	{
+		"pref_name": "NoTorrentUploadingWinUpdates",
+		"img": "graphics/torrent.png",
+		"title": "Disable Stranger Downloads from Your Computer",
+		"snark": """
+			<p>So Microsoft wants to save some money by spreading the load. Instead of downloading from them, people can essentially torrent large updates from other people. The problem: that means you might suddenly have large spikes in Wi-Fi usage for no reason.</p>
+			<p>To make sure your system is only being used by YOU, click this fix.</p>
+			""",				
+		"description": """
+			<p>To improve efficiency of distributing Windows updates, they utilize a filesharing network between customer PCs. That means you're uploading to other people which is probably not a security risk, but IS annoying if you need your bandwidth for whatever YOU want to do. Click this fix to disable that behavior.</p>
+			""",
+		"activation_message": "Disable Stranger Downloads - Windows must be restarted to see the changes.",
+		"tags": [ "#MSRude","#Torrenting","#MyBandwidthIsMine","#Updates"],
+		"reg_fix": [
+			{
+				"hive": "HKEY_USERS",
+				"path": r"S-1-5-20\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Settings",
+				"fixed": [
+					{
+						"name": "DownloadMode",
+						"data": 0
+					}
+				],
+				"default": [
+					{
+						"name": "DownloadMode",
+						"data": 3
+					}				
+				]			
+			}
+		]
+	},
 }
 
 def user_message(message):
 	print(message)
 
 def binary_to_stringlist(binary_value):
-    hex_string = binary_value.hex()  # Convert binary to hex string
-    return [hex_string[i:i+8] for i in range(0, len(hex_string), 8)]
+	hex_string = binary_value.hex()  # Convert binary to hex string
+	return [hex_string[i:i+8] for i in range(0, len(hex_string), 8)]
 
 def stringlist_to_binary(hex_list):
-    hex_string = ''.join(hex_list)  # Join the list of hex strings
-    return bytes.fromhex(hex_string)  # Convert hex string back to binary
+	hex_string = ''.join(hex_list)  # Join the list of hex strings
+	return bytes.fromhex(hex_string)  # Convert hex string back to binary
 
 def strip_stringlist(string_list, target_string):
-    string_list = [s for s in string_list if s != target_string]
-    return string_list
+	string_list = [s for s in string_list if s != target_string]
+	return string_list
 
 def hive_name(hive):
 	if hive == winreg.HKEY_CURRENT_USER:
@@ -940,35 +1109,63 @@ def hive_name(hive):
 	else:
 		return "UNKNOWN_HIVE"
 	
-def open_or_create_key(hive, path):
+def name_hive(name):
+	if name == "HKEY_CURRENT_USER":
+		return winreg.HKEY_CURRENT_USER
+	elif name == "HKEY_LOCAL_MACHINE":
+		return winreg.HKEY_LOCAL_MACHINE
+	elif name == "HKEY_CLASSES_ROOT":
+		return winreg.HKEY_CLASSES_ROOT
+	elif name == "HKEY_USERS":
+		return winreg.HKEY_USERS
+	elif name == "HKEY_PERFORMANCE_DATA":
+		return winreg.HKEY_PERFORMANCE_DATA
+	elif name == "HKEY_CURRENT_CONFIG":
+		return winreg.HKEY_CURRENT_CONFIG
+	else:
+		return None
+	
+def open_key(hive_str, path, create=None):
+	hive = name_hive(hive_str)
 	try:
 		# Open the registry key for reading and writing
 		key = winreg.OpenKeyEx(hive, path, 0, winreg.KEY_ALL_ACCESS | winreg.KEY_WOW64_64KEY)
-		print(f"Key opened: {hive_name(hive)}\\{path}")
+		#print(f"Key opened: {hive_name(hive)}\\{path}")
 	except FileNotFoundError:
 		# Handle if the key doesn't exist
-		print(f"Creating key: {hive_name(hive)}\\{path}")
-		key = winreg.CreateKeyEx(hive, path, 0, winreg.KEY_ALL_ACCESS | winreg.KEY_WOW64_64KEY)
+		if create:
+			#print(f"Creating key: {hive_name(hive)}\\{path}")
+			key = winreg.CreateKeyEx(hive, path, 0, winreg.KEY_ALL_ACCESS | winreg.KEY_WOW64_64KEY)
+		else:
+			#print(f"Key not found (not creating): {hive_name(hive)}\\{path}")
+			return None
 	except PermissionError:
 		# Handle if there are permission issues
-		print(f"Permission denied while accessing the key: {hive_name(hive)}\\{path}")
-		key = None
+		#print(f"Permission denied while accessing the key: {hive_name(hive)}\\{path}")
+		return None
 	except Exception as e:
 		# Handle any other exceptions
+		print(f"On: {hive_name(hive)}\\{path}")
 		print(f"An error occurred: {e}")
-		key = None
+		return None
 	return key
 
 def is_fixed(which):
 	global fixes
 
+	if which not in fixes:
+		print(f"{which} not found is isfixed")
+		return 0
+	#print(f"Isfixed testing {which}")
 	# Damned hex binary crap
 	if which == "NoNumL":
-		key = open_or_create_key(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Keyboard Layout")
+		key = open_key("HKEY_LOCAL_MACHINE", r"SYSTEM\CurrentControlSet\Control\Keyboard Layout")
+		if not key: 
+			return 0
 		try:
 			current_value, _ = winreg.QueryValueEx(key, "Scancode Map")
 			current_value = binary_to_stringlist(current_value)
-			if "000045e0" in current_value:
+			if "00004500" in current_value:
 				return 1
 			else:
 				winreg.CloseKey(key)
@@ -979,27 +1176,30 @@ def is_fixed(which):
 			return 0
 
 	if not "reg_fix" in fixes[which]:
+		print(f"{which} wasn't a registry fix")
 		return 0
 
 	reg_fix = fixes[which]["reg_fix"]
 
 	for rg in reg_fix:
-		if rg["hive"] == "HKEY_LOCAL_MACHINE":
-			hive = winreg.HKEY_LOCAL_MACHINE
-		else:
-			hive = winreg.HKEY_CURRENT_USER
 
-		key = open_or_create_key(hive, rg["path"])
+		key = open_key(rg["hive"], rg["path"])
 		if not key: 
 			return 0
 		
+		#print(rg["fixed"])
 		for a_fix in rg["fixed"]:
 			try:
+				#print(f"Querying {a_fix["name"]}")
 				current_value, _ = winreg.QueryValueEx(key, a_fix["name"])
 				#default is integer, but if not, leave it alone
 				if not "type" in a_fix:
 					current_value = int(current_value)
+				#print(f"{a_fix["name"]} registry value {current_value}, fix value {a_fix["data"]}")
+				if current_value != a_fix["data"]:
+					return 0
 			except FileNotFoundError:
+				print(f"{a_fix["name"]} filenotfounderror")
 				winreg.CloseKey(key)
 				return 0
 		
@@ -1010,36 +1210,41 @@ def is_fixed(which):
 # 1 means fix it
 # returns dict with various information about the fix
 def other_fixer(which, fix_it=None):
-	global fixes
+
+	# Can't fix this - use the other guy's tool.
+	if which == "GroupBy":
+		try:
+			# Launch the executable
+			subprocess.run(["../extras/WinSetView/WinSetView.exe"], check=True)
+			print("Executable launched successfully.")
+		except subprocess.CalledProcessError as e:
+			print(f"Error launching executable: {e}")
 
 	# Get and store current value
 	previous = is_fixed(which)
 	if previous == fix_it: 
-		return {"previous": fix_it, "desired": fix_it,"actual": fix_it, "note": "no change was made"}
+		return {"previous": fix_it, "desired": fix_it,"actual": fix_it, "activation_message": "no change was made"}
 	
 	# Damned hex binary crap
 	if which == "NoNumL":
-		key = open_or_create_key(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Keyboard Layout")
+		key = open_key("HKEY_LOCAL_MACHINE", r"SYSTEM\CurrentControlSet\Control\Keyboard Layout",1)
 		try:
 			current_value, _ = winreg.QueryValueEx(key, "Scancode Map")
 			current_value = binary_to_stringlist(current_value)
-			# is there a numlock value in there already? 
-			# Search for a string that ends with "45e0"
-			found_45e0 = next(value.endswith("45e0") for value in current_value)
-			# Follow along, whether we're fixing or not, this value needs to go. If we're going to default, no numlock map. If we're disabling it, best to make sure there's no other mapping. Just kill it
-			current_value = strip_stringlist(current_value, found_45e0)
 			# We just deleted the mapping so fix_it == 0 is covered so just check fix_it == 1
 			if fix_it == 1:
-				current_value.insert(-1, "000045e0")
+				current_value.insert(-1, "00004500")
+			else:
+				current_value = strip_stringlist(current_value, "00004500")
+				
 			# This mapping has two rows of zero to start and one at the end. Just count everything else.
-			current_value[2] = str(len(current_value) - 3).zfill(2) + "000000"			
+			current_value[2] = str(len(current_value) - 3).zfill(2) + "000000"
+			#print (current_value)		
 			winreg.SetValueEx(key, "Scancode Map", 0, winreg.REG_BINARY, stringlist_to_binary(current_value))
 		except FileNotFoundError:
 			# Scancode Map isn't there? Then this is easy.
 			if fix_it == 1:
-				winreg.SetValueEx(key, "Scancode Map", 0, winreg.REG_BINARY, stringlist_to_binary(['00000000', '00000000', '02000000', '000045e0', '00000000']))
-		winreg.CloseKey(key)
-		return {"previous": previous, "desired": fix_it, "actual": is_fixed(which)}
+				winreg.SetValueEx(key, "Scancode Map", 0, winreg.REG_BINARY, stringlist_to_binary(['00000000', '00000000', '02000000', '00004500', '00000000']))
 
 	if which == "GroupBy":
 		user_message("Select the view you want and click Apply To All")
@@ -1052,7 +1257,8 @@ def other_fixer(which, fix_it=None):
 		if os.path.isfile(executable_path):
 			# Call the executable using subprocess
 			subprocess.run([executable_path])
-		return {"previous": previous, "desired": fix_it, "actual": fix_it}
+	winreg.CloseKey(key)
+	return {"previous": previous, "desired": fix_it, "fixed": is_fixed(which)}
 
 
 # 0 means break it
@@ -1065,15 +1271,11 @@ def reg_fixer(which, fix_it=None):
 	# Get and store current value
 	previous = is_fixed(which)
 	if previous == fix_it: 
-		return {"previous": fix_it, "desired": fix_it,"actual": fix_it, "note": "no change was made"}
+		return {"previous": fix_it, "desired": fix_it,"fixed": fix_it, "note": "no change was made"}
 
 	for rg in reg_fix:
-		if rg["hive"] == "HKEY_LOCAL_MACHINE":
-			hive = winreg.HKEY_LOCAL_MACHINE
-		elif rg["hive"] == "HKEY_CURRENT_USER":
-			hive = winreg.HKEY_CURRENT_USER
 
-		key = open_or_create_key(hive, rg["path"])
+		key = open_key(rg["hive"], rg["path"],1)
 		if not key:
 			return 0
 		
@@ -1093,7 +1295,14 @@ def reg_fixer(which, fix_it=None):
 					# In some cases, we specifically don't want to do anything.
 					continue
 				elif "deletekey" in a_fix:
-					winreg.DeleteKey(hive, a_fix["key"])
+					# how many levels to delete? Usually 1, but can be more.
+					levels = a_fix['deletekey']
+					path_list = rg['path'].split("\\")
+
+					for i in range(levels):
+						path_to_delete = "\\".join(path_list)
+						winreg.DeleteKey(hive, path_to_delete)
+						path_list.pop()
 				elif "deletevalue" in a_fix:
 					winreg.DeleteValue(key, a_fix["name"])
 				else:
@@ -1105,33 +1314,85 @@ def reg_fixer(which, fix_it=None):
 				return 0
 
 	winreg.CloseKey(key)
-	return {"previous": previous, "desired": fix_it, "actual": is_fixed(which)}
+	return {"previous": previous, "desired": fix_it, "fixed": is_fixed(which)}
 
-# Executes a command and returns the last value
-def ps_command(the_command):
-	output = subprocess.run(["powershell", "-Command", the_command], capture_output=True, text=True)
-	return output.stdout.strip()
+# Function to check for the settings file and load it
+def get_prefs():
+	global current_state
+	global prefs_path
+	settings_pattern = os.path.join(prefs_path, '*.txt')
+	
+	# Create backup folder if it doesn't exist
+	if not os.path.exists(prefs_path):
+		os.makedirs(prefs_path)
 
-settings = {}
-
-def get_settings():
+	# Find all backup files
+	backup_files = glob.glob(settings_pattern)
+	
+	# Check if there are any backup files
+	if not backup_files:
+		# Create a new backup file with today's date
+		today_str = datetime.now().strftime('%Y%m%d_%H%M%S')
+		settings_filename = f'{today_str}_initial_backup.txt'
+		settings_path = os.path.join(prefs_path, settings_filename)
+		# Save current state settings if no backup files are found
+		with open(settings_path, 'w') as f:
+			for key, value in current_state.items():
+				f.write(f'{key}: {value}\n')
+		print ("initial backup saved!")
+		return [current_state,'initial']
+	else:
+		# Find the oldest backup file
+		oldest_backup = min(backup_files, key=os.path.getctime)
+		# Load settings from the oldest backup file
+		with open(oldest_backup, 'r') as f:
+			loaded_settings = {}
+			for line in f:
+				key, value = line.strip().split(': ', 1)
+				loaded_settings[key] = int(value)
+			return [loaded_settings, '']
+		
+def get_fixed():
 	global fixes
+	global current_state
 	for key, a_fix in fixes.items():
-		settings[a_fix["pref_name"]] = is_fixed(key)
-	return settings
+		current_state[a_fix["pref_name"]] = is_fixed(key)
+	return current_state
 
-settings = get_settings()
+def get_menu_prefs():
+	global prefs_path
+	file_path = os.path.join(prefs_path, 'menu_prefs.txt')
+	settings = {}
+    # Check if the file exists
+	if not os.path.exists(file_path):
+		print(f"File not found: {file_path}")
+		return settings
 
-print(settings)
+	with open(file_path, 'r') as file:
+		for line in file:
+			# Strip whitespace and split by the first '='
+			line = line.strip()
+			if ':' in line:
+				name, value = line.split(':', 1)
+				settings[name.strip()] = int(value.strip())
+	return settings	
+
+preferred_state = {}
+current_state = {}
+menu_prefs = {}
+prefs_path = '..\prefs'
 
 @app.route('/')
 def home_page():
-	settings = get_settings()	
-	return render_template("index.html", fixes=fixes, settings=settings)
+	current_state = get_fixed()
+	menu_prefs = get_menu_prefs()
+	print(menu_prefs)
+	preferred_state, message = get_prefs()
+	return render_template("index.html", fixes=fixes, current_state=current_state, preferred_state=preferred_state, menu_prefs=menu_prefs, message=message)
 
 @app.route('/toggle_fix', methods=['POST'])
 def toggle_fix():
-	global fixes, settings
+	global fixes, current_state
 	
 	data = request.get_json()
 	fix_key = data.get('fix_key')
@@ -1143,8 +1404,77 @@ def toggle_fix():
 	else:
 		result = other_fixer(fix_key, 0 if fixed else 1)
 		
-	response = {'status': 'success', 'message': {"text": f'Toggled fix {fix_key}', 'fixed': result["actual"], 'full_return': result}}
+	# Determine the message text
+	message_text = f'Attempted toggle of {fix_key}'
+
+	# If in result, the fix is sending a message. If not, AND there's a message in the fixes, use that.
+	if not "activation_message" in result and "activation_message" in fixes[fix_key]:
+		result["activation_message"] = fixes[fix_key]["activation_message"] if fixes[fix_key]["activation_message"] else ""
+	else:
+		result["activation_message"] = ""
+
+	# Construct the response dictionary
+	response = {
+		'status': 'success',
+		'message': {
+			'text': message_text,
+			'desired': result["desired"],
+			'fixed': result["fixed"],
+			'full_return': result,
+			'activation_message': result["activation_message"]
+		}
+	}
 	return jsonify(response)
+
+@app.route('/restart_win_explorer', methods=['POST'])
+def restart_windows_explorer():
+	try:
+		# Find all instances of explorer.exe and terminate them
+		for proc in psutil.process_iter(['pid', 'name']):
+			if proc.info['name'] == 'explorer.exe':
+				psutil.Process(proc.info['pid']).terminate()
+
+		# Restart Windows Explorer
+		subprocess.run(['explorer.exe'])
+	
+		# Construct the response dictionary
+		response = {
+			'status': 'success',
+			'message': {
+				'status_message': "Windows Explorer has been restarted. Feel free to verify that the fix is working as expected."
+			}
+		}
+		return jsonify(response), 200
+
+	except Exception as e:
+		# Handle any exceptions that may occur
+		return jsonify({'status': 'error', 'status_message': str(e)}), 500
+	
+@app.route('/save_menu_prefs', methods=['POST'])
+def save_menu_prefs():
+	data = request.get_json()
+	menu_prefs = data.get('menu_prefs')
+
+	# Create backup folder if it doesn't exist
+	if not os.path.exists(prefs_path):
+		os.makedirs(prefs_path)
+
+	settings_filename = f'menu_prefs.txt'
+	settings_path = os.path.join(prefs_path, settings_filename)
+	# Save current state settings if no backup files are found
+	with open(settings_path, 'w') as f:
+		for key, value in menu_prefs.items():
+			f.write(f'{key}: {value}\n')
+			
+	# Construct the response dictionary
+	response = {
+		'status': 'success',
+		'message': {
+			'status_message': "Windows Explorer has been restarted. Feel free to verify that the fix is working as expected."
+		}
+	}
+	return jsonify(response), 200
+
 
 if __name__ == '__main__':
 	app.run(debug=True)
